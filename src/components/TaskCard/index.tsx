@@ -33,6 +33,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
   const selectedRoute = routeList.find((r) => r.id === selectedRouteId);
   const canStart = !!selectedBusId && !!selectedRouteId;
   const isFinished = todayStatus !== 'pending';
+  const canAlwaysGo = todayStatus === 'waiting' || todayStatus === 'handled';
 
   const handleBusPickerChange = (e: any) => {
     const idx = parseInt(e.detail.value);
@@ -133,9 +134,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
       )}
 
       <Button
-        className={classnames(styles.actionBtn, !canStart && !isFinished && styles.disabled)}
+        className={classnames(styles.actionBtn, !canStart && !canAlwaysGo && styles.disabled)}
         onClick={() => {
-          if (!canStart) {
+          if (!canStart && !canAlwaysGo) {
             Taro.showToast({ title: '请先选择车牌和线路', icon: 'none' });
             return;
           }

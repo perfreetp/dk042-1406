@@ -1,11 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, Image, Textarea, Button } from '@tarojs/components';
+import { View, Text, Image, Textarea, Button, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import useAppStore from '@/store';
 import type { SafetyNotice, HandleResult } from '@/types';
-import { formatDateTime, getExceptionTypeText, getHandleResultText } from '@/utils';
+import {
+  formatDateTime,
+  getExceptionTypeText,
+  getHandleResultText,
+  getDefaultHandleResult,
+  getRecommendedActions
+} from '@/utils';
 
 type FilterType = 'all' | 'pending' | 'handled';
 
@@ -15,7 +21,7 @@ const FILTERS: { key: FilterType; label: string }[] = [
   { key: 'handled', label: '已处理' }
 ];
 
-const HANDLE_RESULTS: { key: HandleResult; name: string }[] = [
+const ALL_HANDLE_RESULTS: { key: HandleResult; name: string }[] = [
   { key: 'retest_pass', name: '已复测放行' },
   { key: 'replace_driver', name: '安排替班' },
   { key: 'device_replaced', name: '设备已更换' },
@@ -31,6 +37,8 @@ const SafetyNoticePage: React.FC = () => {
   const [activeNotice, setActiveNotice] = useState<SafetyNotice | null>(null);
   const [handleResult, setHandleResult] = useState<HandleResult>('retest_pass');
   const [handleRemark, setHandleRemark] = useState('');
+  const [retestValue, setRetestValue] = useState('');
+  const [retestPhoto, setRetestPhoto] = useState<string>('');
 
   const stats = useMemo(() => {
     const total = safetyNotices.length;
@@ -45,15 +53,32 @@ const SafetyNoticePage: React.FC = () => {
     return safetyNotices.filter((n) => n.handled);
   }, [filter, safetyNotices]);
 
-  const canSubmitHandle = handleRemark.trim().length >= 5;
+  const recommendedResults = useMemo<{ key: HandleResult; name: string }[]>(() => {
+    if (!activeNotice) return ALL_HANDLE_RESULTS;
+    const recKeys = getRecommendedActions(activeNotice.exceptionType);
+    return ALL_HANDLE_RESULTS.filter((r) => recKeys.includes(r.key));
+  }, [activeNotice]);
+
+  const canSubmitHandle = useMemo(() => {
+    if (!handleRemark.trim() || handleRemark.trim().length < 5) return false;
+    if (handleResult === 'retest_pass') {
+      const v = parseFloat(retestValue);
+      if (isNaN(v) || v < 0) return false;
+    }
+    return true;
+  }, [handleRemark, handleResult, retestValue]);
 
   const openHandleModal = (notice: SafetyNotice) => {
     if (notice.handled) return;
     setActiveNotice(notice);
-    setHandleResult('retest_pass');
+    setHandleResult(getDefaultHandleResult(notice.exceptionType));
     setHandleRemark('');
+    setRetestValue('');
+    setRetestPhoto('');
     setShowModal(true);
-    console.log('[SafetyNotice] 打开处理弹窗', notice.id);
+    console.log('[SafetyNotice] 打开处理弹窗', notice.id, {
+      defaultResult: getDefaultHandleResult(notice.exceptionType)
+    });
   };
 
   const closeHandleModal = () => {
@@ -61,18 +86,48 @@ const SafetyNoticePage: React.FC = () => {
     setActiveNotice(null);
   };
 
-  const handleSubmitHandle = () => {
-    if (!activeNotice) return;
-    if (handleRemark.trim().length < 5) {
-      return;
+  const handleModalContentClick = (e: any) => {
+    e.stopPropagation && e.stopPropagation();
+  };
+
+  const handleAddRetestPhoto = async () => {
+    try {
+      const res = await Taro.chooseImage({
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: ['camera', 'album']
+      });
+      const p = res.tempFilePaths[0] || `https://picsum.photos/id/${Math.floor(Math.random() * 50) + 100}/400/300`;
+      setRetestPhoto(p);
+      console.log('[SafetyNotice] 复测照片', p);
+    } catch (err) {
+      console.error('[SafetyNotice] 拍照失败', err);
+      setRetestPhoto(`https://picsum.photos/id/${Math.floor(Math.random() * 50) + 100}/400/300`);
     }
-    handleSafetyNotice({
+  };
+
+  const handleQuickRetest = (val: string) => {
+    setRetestValue(val);
+  };
+
+  const handleSubmitHandle = () => {
+    if (!activeNotice || !canSubmitHandle) return;
+    const payload: Parameters<typeof handleSafetyNotice>[0] = {
       noticeId: activeNotice.id,
       handlerName: '安全员-刘主管',
       handleResult,
       handleRemark: handleRemark.trim()
+    };
+    if (handleResult === 'retest_pass') {
+      payload.retestValue = parseFloat(retestValue);
+      payload.retestPhoto = retestPhoto || `https://picsum.photos/id/${Math.floor(Math.random() * 50) + 100}/400/300`;
+    }
+    handleSafetyNotice(payload);
+    console.log('[SafetyNotice] 提交处理', {
+      noticeId: activeNotice.id,
+      handleResult,
+      retestValue: payload.retestValue
     });
-    console.log('[SafetyNotice] 提交处理', { noticeId: activeNotice.id, handleResult });
     Taro.showToast({ title: '处理完成', icon: 'success' });
     closeHandleModal();
   };
@@ -182,6 +237,26 @@ const SafetyNoticePage: React.FC = () => {
                       {getHandleResultText(notice.handleResult)}
                     </View>
                   )}
+                  {notice.handleResult === 'retest_pass' && notice.retestValue !== undefined && (
+                    <View className={styles.row}>
+                      <Text className={styles.label}>复测值</Text>
+                      <Text className={classnames(styles.value, notice.retestValue < 20 ? styles.success : '')}>
+                        {notice.retestValue} mg/100ml
+                      </Text>
+                    </View>
+                  )}
+                  {notice.handleResult === 'retest_pass' && notice.retestPhoto && (
+                    <View style={{ marginBottom: 16 }}>
+                      <Text className={styles.label} style={{ display: 'block', marginBottom: 8 }}>
+                        复测照片
+                      </Text>
+                      <Image
+                        src={notice.retestPhoto}
+                        mode='aspectFill'
+                        style={{ width: 200, height: 150, borderRadius: 8 }}
+                      />
+                    </View>
+                  )}
                   <View className={styles.row}>
                     <Text className={styles.label}>处理人</Text>
                     <Text className={styles.value}>{notice.handlerName}</Text>
@@ -213,7 +288,7 @@ const SafetyNoticePage: React.FC = () => {
 
       {showModal && activeNotice && (
         <View className={styles.modalMask} onClick={closeHandleModal}>
-          <View className={styles.modalContent} catchMove>
+          <View className={styles.modalContent} onClick={handleModalContentClick}>
             <View className={styles.modalHeader}>
               <Text className={styles.modalTitle}>处理异常通知</Text>
               <Text className={styles.modalClose} onClick={closeHandleModal}>
@@ -238,9 +313,12 @@ const SafetyNoticePage: React.FC = () => {
             <View className={styles.modalSection}>
               <Text className={styles.modalLabel}>
                 处理结果 <Text style={{ color: '#EF4444' }}>*</Text>
+                <Text style={{ fontSize: 22, color: '#94A3B8', marginLeft: 12 }}>
+                  已按异常类型推荐
+                </Text>
               </Text>
               <View className={styles.resultOptions}>
-                {HANDLE_RESULTS.map((r) => (
+                {recommendedResults.map((r) => (
                   <View
                     key={r.key}
                     className={classnames(
@@ -254,6 +332,109 @@ const SafetyNoticePage: React.FC = () => {
                 ))}
               </View>
             </View>
+
+            {handleResult === 'retest_pass' && (
+              <>
+                <View className={styles.modalSection}>
+                  <Text className={styles.modalLabel}>
+                    复测读数（mg/100ml）<Text style={{ color: '#EF4444' }}>*</Text>
+                  </Text>
+                  <View style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <Input
+                      type='digit'
+                      value={retestValue}
+                      onInput={(e) => setRetestValue(e.detail.value)}
+                      placeholder='0'
+                      style={{
+                        flex: 1,
+                        height: 72,
+                        background: '#F1F5F9',
+                        borderRadius: 12,
+                        padding: '0 24rpx',
+                        fontSize: 32,
+                        color: '#0F172A'
+                      }}
+                    />
+                    <Text style={{ fontSize: 24, color: '#64748B' }}>mg/100ml</Text>
+                  </View>
+                  <View style={{ display: 'flex', gap: 12, marginTop: 16, flexWrap: 'wrap' }}>
+                    {['0', '5', '12', '18', '25', '35'].map((v) => (
+                      <Button
+                        key={v}
+                        onClick={() => handleQuickRetest(v)}
+                        style={{
+                          width: 90,
+                          height: 56,
+                          borderRadius: 999,
+                          background: '#F1F5F9',
+                          color: '#475569',
+                          fontSize: 24,
+                          padding: 0,
+                          lineHeight: '56rpx',
+                          margin: 0
+                        }}
+                      >
+                        {v}
+                      </Button>
+                    ))}
+                  </View>
+                </View>
+
+                <View className={styles.modalSection}>
+                  <Text className={styles.modalLabel}>
+                    复测读数照片
+                  </Text>
+                  {retestPhoto ? (
+                    <View style={{ position: 'relative' }}>
+                      <Image
+                        src={retestPhoto}
+                        mode='aspectFill'
+                        style={{ width: 280, height: 210, borderRadius: 12 }}
+                      />
+                      <View
+                        onClick={() => setRetestPhoto('')}
+                        style={{
+                          position: 'absolute',
+                          top: 8,
+                          right: 8,
+                          width: 44,
+                          height: 44,
+                          borderRadius: 22,
+                          background: 'rgba(0,0,0,0.6)',
+                          color: '#fff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 32
+                        }}
+                      >
+                        ×
+                      </View>
+                    </View>
+                  ) : (
+                    <View
+                      onClick={handleAddRetestPhoto}
+                      style={{
+                        width: 280,
+                        height: 210,
+                        borderRadius: 12,
+                        border: '2rpx dashed #CBD5E1',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#94A3B8',
+                        fontSize: 24,
+                        gap: 8
+                      }}
+                    >
+                      <Text style={{ fontSize: 56 }}>📷</Text>
+                      <Text>点击上传复测照片</Text>
+                    </View>
+                  )}
+                </View>
+              </>
+            )}
 
             <View className={styles.modalSection}>
               <Text className={styles.modalLabel}>

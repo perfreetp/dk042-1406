@@ -24,6 +24,8 @@ interface AppStore {
     handlerName: string;
     handleResult: HandleResult;
     handleRemark: string;
+    retestValue?: number;
+    retestPhoto?: string;
   }) => void;
   getTodayTaskStatus: (driverName: string) => TodayTaskStatus;
 }
@@ -99,7 +101,7 @@ const useAppStore = create<AppStore>((set, get) => ({
   },
 
   handleSafetyNotice: (params) => {
-    const { noticeId, handlerName, handleResult, handleRemark } = params;
+    const { noticeId, handlerName, handleResult, handleRemark, retestValue, retestPhoto } = params;
     const now = new Date().toISOString();
     set((state) => ({
       safetyNotices: state.safetyNotices.map((n) =>
@@ -110,12 +112,15 @@ const useAppStore = create<AppStore>((set, get) => ({
               handleTime: now,
               handlerName,
               handleRemark,
-              handleResult
+              handleResult,
+              retestValue,
+              retestPhoto,
+              retestTime: retestValue !== undefined ? now : undefined
             }
           : n
       )
     }));
-    console.log('[Store] 处理安全员通知', { noticeId, handleResult, handlerName });
+    console.log('[Store] 处理安全员通知', { noticeId, handleResult, retestValue, handlerName });
   },
 
   getTodayTaskStatus: (driverName: string): TodayTaskStatus => {

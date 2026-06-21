@@ -97,3 +97,19 @@
     flex: 1;
   }
 }
+
+.progressTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 14rpx;
+  border-radius: $radius-xs;
+  font-size: 20rpx;
+  font-weight: $font-weight-medium;
+  margin-top: $spacing-xs;
+  margin-right: $spacing-xs;
+
+  &.waiting { background: $color-warning-bg; color: $color-warning; }
+  &.handled { background: $color-success-bg; color: $color-success; }
+  &.retest_pass { background: $color-success-bg; color: $color-success; }
+  &.replace_driver { background: $color-primary-bg; color: $color-primary; }
+}

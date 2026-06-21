@@ -4,6 +4,7 @@ export type ExceptionType = 'over_limit' | 'device_error' | 'timeout' | 'other';
 export type HandleResult = 'retest_pass' | 'replace_driver' | 'device_replaced' | 'other';
 export type TodayTaskStatus = 'pending' | 'completed' | 'waiting' | 'handled';
 export type TestStep = 1 | 2 | 3;
+export type RecordFilter = 'all' | 'pending' | 'waiting' | 'handled' | 'retest_pass' | 'replace_driver';
 
 export interface UserInfo {
   id: string;
@@ -92,6 +93,9 @@ export interface SafetyNotice {
   handlerName?: string;
   handleRemark?: string;
   handleResult?: HandleResult;
+  retestValue?: number;
+  retestPhoto?: string;
+  retestTime?: string;
 }
 
 export interface StepConfig {

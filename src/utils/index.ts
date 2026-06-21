@@ -1,3 +1,5 @@
+import type { HandleResult } from '@/types';
+
 export const formatTime = (dateStr: string): string => {
   const date = new Date(dateStr);
   const hours = date.getHours().toString().padStart(2, '0');
@@ -47,6 +49,38 @@ export const getHandleResultText = (result: string): string => {
     other: '其他处理'
   };
   return map[result] || result;
+};
+
+export const getDefaultHandleResult = (type: string): HandleResult => {
+  const map: Record<string, HandleResult> = {
+    over_limit: 'retest_pass',
+    device_error: 'device_replaced',
+    timeout: 'other',
+    other: 'other'
+  };
+  return map[type] || 'other';
+};
+
+export const getRecommendedActions = (type: string): HandleResult[] => {
+  const map: Record<string, HandleResult[]> = {
+    over_limit: ['retest_pass', 'replace_driver', 'other'],
+    device_error: ['device_replaced', 'replace_driver', 'other'],
+    timeout: ['retest_pass', 'other'],
+    other: ['other', 'replace_driver']
+  };
+  return map[type] || ['other'];
+};
+
+export const getRecordFilterText = (key: string): string => {
+  const map: Record<string, string> = {
+    all: '全部',
+    pending: '待处理',
+    waiting: '待处理',
+    handled: '已处理',
+    retest_pass: '已放行',
+    replace_driver: '已替班'
+  };
+  return map[key] || key;
 };
 
 export const getTodayTaskStatusText = (status: string): string => {

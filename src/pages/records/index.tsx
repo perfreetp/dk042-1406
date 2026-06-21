@@ -5,9 +5,12 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 import RecordItem from '@/components/RecordItem';
 import useAppStore from '@/store';
-import type { TestStatus } from '@/types';
+import type { TestStatus, TestRecord } from '@/types';
 
-const FILTERS: { key: TestStatus | 'all'; label: string }[] = [
+type ResultFilter = TestStatus | 'all';
+type ProgressFilter = 'all' | 'waiting' | 'handled' | 'retest_pass' | 'replace_driver';
+
+const RESULT_FILTERS: { key: ResultFilter; label: string }[] = [
   { key: 'all', label: '全部' },
   { key: 'pass', label: '可发车' },
   { key: 'retest', label: '需复测' },
@@ -15,9 +18,19 @@ const FILTERS: { key: TestStatus | 'all'; label: string }[] = [
   { key: 'exception', label: '异常' }
 ];
 
+const PROGRESS_FILTERS: { key: ProgressFilter; label: string }[] = [
+  { key: 'all', label: '全部' },
+  { key: 'waiting', label: '待处理' },
+  { key: 'handled', label: '已处理' },
+  { key: 'retest_pass', label: '已放行' },
+  { key: 'replace_driver', label: '已替班' }
+];
+
 const RecordsPage: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<TestStatus | 'all'>('all');
+  const [activeResult, setActiveResult] = useState<ResultFilter>('all');
+  const [activeProgress, setActiveProgress] = useState<ProgressFilter>('all');
   const records = useAppStore((s) => s.records);
+  const safetyNotices = useAppStore((s) => s.safetyNotices);
 
   const summary = useMemo(() => {
     const pass = records.filter((r) => r.status === 'pass').length;
@@ -28,10 +41,24 @@ const RecordsPage: React.FC = () => {
     return { pass, retest, exception };
   }, [records]);
 
+  const matchProgress = (record: TestRecord, key: ProgressFilter): boolean => {
+    if (key === 'all') return true;
+    const notice = safetyNotices.find((n) => n.taskId === record.id);
+    if (!notice) return key === 'waiting' && (record.status !== 'pass');
+    if (key === 'waiting') return !notice.handled;
+    if (key === 'handled') return notice.handled;
+    if (key === 'retest_pass') return notice.handled && notice.handleResult === 'retest_pass';
+    if (key === 'replace_driver') return notice.handled && notice.handleResult === 'replace_driver';
+    return true;
+  };
+
   const filteredRecords = useMemo(() => {
-    if (activeFilter === 'all') return records;
-    return records.filter((r) => r.status === activeFilter);
-  }, [activeFilter, records]);
+    return records.filter((r) => {
+      if (activeResult !== 'all' && r.status !== activeResult) return false;
+      if (!matchProgress(r, activeProgress)) return false;
+      return true;
+    });
+  }, [activeResult, activeProgress, records, safetyNotices]);
 
   const handleRecordClick = (id: string) => {
     console.log('[Records] 查看记录详情', id);
@@ -58,17 +85,39 @@ const RecordsPage: React.FC = () => {
           </View>
         </View>
 
-        <ScrollView scrollX className={styles.filterTabs}>
-          {FILTERS.map((f) => (
-            <View
-              key={f.key}
-              className={classnames(styles.filterTab, activeFilter === f.key && styles.active)}
-              onClick={() => setActiveFilter(f.key)}
-            >
-              <Text>{f.label}</Text>
-            </View>
-          ))}
-        </ScrollView>
+        <View style={{ marginBottom: 16 }}>
+          <Text style={{ fontSize: 20, color: '#94A3B8', padding: '0 8rpx', marginBottom: 8, display: 'block' }}>
+            检测结果
+          </Text>
+          <ScrollView scrollX className={styles.filterTabs}>
+            {RESULT_FILTERS.map((f) => (
+              <View
+                key={f.key}
+                className={classnames(styles.filterTab, activeResult === f.key && styles.active)}
+                onClick={() => setActiveResult(f.key)}
+              >
+                <Text>{f.label}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
+        <View>
+          <Text style={{ fontSize: 20, color: '#94A3B8', padding: '0 8rpx', marginBottom: 8, display: 'block' }}>
+            处理进度
+          </Text>
+          <ScrollView scrollX className={styles.filterTabs}>
+            {PROGRESS_FILTERS.map((f) => (
+              <View
+                key={f.key}
+                className={classnames(styles.filterTab, activeProgress === f.key && styles.active)}
+                onClick={() => setActiveProgress(f.key)}
+              >
+                <Text>{f.label}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
       </View>
 
       <View className={styles.content}>

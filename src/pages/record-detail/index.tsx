@@ -183,20 +183,74 @@ const RecordDetailPage: React.FC = () => {
           <View className={styles.sectionCard}>
             <View className={styles.sectionTitle}>
               <View className={styles.icon} style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444' }}>
-                ⚠️
+                🕐
               </View>
-              异常信息
+              处理时间线
             </View>
-            <View className={styles.exceptionBox}>
-              <View className={styles.typeTag}>{getExceptionTypeText(record.exceptionType)}</View>
-              <View className={styles.remark}>{record.exceptionRemark}</View>
-              {record.exceptionPhotos && record.exceptionPhotos.length > 0 && (
-                <View className={styles.photos}>
-                  {record.exceptionPhotos.map((p, idx) => (
-                    <View key={idx} className={styles.photo}>
-                      <Image src={p} mode='aspectFill' />
+            <View className={styles.timeline}>
+              <View className={styles.tlItem}>
+                <View className={classnames(styles.tlDot, styles.done)} />
+                <View className={classnames(styles.tlLine, styles.done)} />
+                <Text className={classnames(styles.tlTitle, styles.danger)}>异常上报</Text>
+                <Text className={styles.tlDesc}>
+                  {getExceptionTypeText(record.exceptionType)}：{record.exceptionRemark}
+                </Text>
+                {record.alcoholValue !== undefined && (
+                  <Text className={classnames(styles.tlValue, record.alcoholValue >= 80 ? styles.danger : styles.warn)}>
+                    首次检测 {record.alcoholValue} mg/100ml
+                  </Text>
+                )}
+                <Text className={styles.tlTime}>{formatDateTime(relatedNotice?.createTime || record.testTime)}</Text>
+                {record.exceptionPhotos && record.exceptionPhotos.length > 0 && (
+                  <View className={styles.tlPhoto}>
+                    <Image src={record.exceptionPhotos[0]} mode='aspectFill' />
+                  </View>
+                )}
+              </View>
+
+              {relatedNotice?.handled && relatedNotice?.handleResult === 'retest_pass' && relatedNotice?.retestValue !== undefined && (
+                <View className={styles.tlItem}>
+                  <View className={classnames(styles.tlDot, styles.done)} />
+                  <View className={classnames(styles.tlLine, styles.done)} />
+                  <Text className={classnames(styles.tlTitle, styles.warn)}>安全员监督复测</Text>
+                  <Text className={styles.tlDesc}>
+                    由 {relatedNotice.handlerName || '安全员'} 现场监督完成复测
+                  </Text>
+                  <Text className={classnames(styles.tlValue, relatedNotice.retestValue < 20 ? styles.success : styles.warn)}>
+                    复测值 {relatedNotice.retestValue} mg/100ml
+                  </Text>
+                  {relatedNotice.retestTime && (
+                    <Text className={styles.tlTime}>{formatDateTime(relatedNotice.retestTime)}</Text>
+                  )}
+                  {relatedNotice.retestPhoto && (
+                    <View className={styles.tlPhoto}>
+                      <Image src={relatedNotice.retestPhoto} mode='aspectFill' />
                     </View>
-                  ))}
+                  )}
+                </View>
+              )}
+
+              {relatedNotice?.handled ? (
+                <View className={styles.tlItem}>
+                  <View className={classnames(styles.tlDot, styles.done)} />
+                  <Text className={classnames(styles.tlTitle, styles.success)}>
+                    处理完成 · {relatedNotice.handleResult ? getHandleResultText(relatedNotice.handleResult) : '已处理'}
+                  </Text>
+                  <Text className={styles.tlDesc}>
+                    处理人：{relatedNotice.handlerName || '安全员'}
+                    {relatedNotice.handleRemark && `｜${relatedNotice.handleRemark}`}
+                  </Text>
+                  {relatedNotice.handleTime && (
+                    <Text className={styles.tlTime}>{formatDateTime(relatedNotice.handleTime)}</Text>
+                  )}
+                </View>
+              ) : (
+                <View className={styles.tlItem}>
+                  <View className={classnames(styles.tlDot, styles.active)} />
+                  <Text className={classnames(styles.tlTitle, styles.warn)}>等待安全员处理</Text>
+                  <Text className={styles.tlDesc}>
+                    已通知值班安全员，请耐心等待。如有紧急情况请联系车队安全主管。
+                  </Text>
                 </View>
               )}
             </View>

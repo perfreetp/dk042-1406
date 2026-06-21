@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text } from '@tarojs/components';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import StatusBadge from '@/components/StatusBadge';
+import useAppStore from '@/store';
 import type { TestRecord } from '@/types';
 import { formatTime, getExceptionTypeText } from '@/utils';
 
@@ -19,6 +20,27 @@ const getAlcoholClass = (val?: number) => {
 };
 
 const RecordItem: React.FC<RecordItemProps> = ({ record, onClick }) => {
+  const safetyNotices = useAppStore((s) => s.safetyNotices);
+
+  const notice = useMemo(() => safetyNotices.find((n) => n.taskId === record.id), [safetyNotices, record.id]);
+
+  const progressTag = useMemo(() => {
+    if (!record.exceptionType) return null;
+    if (!notice) {
+      return { key: 'waiting' as const, label: '待处理' };
+    }
+    if (!notice.handled) {
+      return { key: 'waiting' as const, label: '待处理' };
+    }
+    if (notice.handleResult === 'retest_pass') {
+      return { key: 'retest_pass' as const, label: '已放行' };
+    }
+    if (notice.handleResult === 'replace_driver') {
+      return { key: 'replace_driver' as const, label: '已替班' };
+    }
+    return { key: 'handled' as const, label: '已处理' };
+  }, [record, notice]);
+
   return (
     <View className={styles.item} onClick={onClick}>
       <View className={styles.header}>
@@ -27,6 +49,11 @@ const RecordItem: React.FC<RecordItemProps> = ({ record, onClick }) => {
           <Text className={styles.routeText}>
             {record.routeName} · {record.plateNo}
           </Text>
+          {progressTag && (
+            <View className={classnames(styles.progressTag, styles[progressTag.key])}>
+              {progressTag.label}
+            </View>
+          )}
         </View>
         <StatusBadge status={record.status} />
       </View>

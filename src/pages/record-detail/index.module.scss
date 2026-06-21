@@ -244,6 +244,10 @@
       font-size: $font-size-xs;
       color: $color-primary;
       font-weight: $font-weight-medium;
+
+      &.success { color: $color-success; }
+      &.warn { color: $color-warning; }
+      &.danger { color: $color-error; }
     }
   }
 
@@ -254,5 +258,128 @@
     font-size: $font-size-xs;
     color: $color-text-secondary;
     line-height: 1.7;
+  }
+
+  .photoRow {
+    display: flex;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+
+    .photo {
+      width: 200rpx;
+      height: 150rpx;
+      border-radius: $radius-sm;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+}
+
+.timeline {
+  position: relative;
+  padding-left: 44rpx;
+
+  .tlItem {
+    position: relative;
+    padding-bottom: $spacing-lg;
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+
+    .tlDot {
+      position: absolute;
+      left: -44rpx;
+      top: 4rpx;
+      width: 24rpx;
+      height: 24rpx;
+      border-radius: $radius-round;
+      background: $color-border;
+      border: 4rpx solid $color-bg-page;
+      box-shadow: 0 0 0 2rpx $color-border;
+
+      &.done {
+        background: $color-success;
+        box-shadow: 0 0 0 2rpx $color-success;
+      }
+
+      &.active {
+        background: $color-warning;
+        box-shadow: 0 0 0 2rpx $color-warning;
+      }
+
+      &.danger {
+        background: $color-error;
+        box-shadow: 0 0 0 2rpx $color-error;
+      }
+    }
+
+    .tlLine {
+      position: absolute;
+      left: -34rpx;
+      top: 28rpx;
+      bottom: -$spacing-md;
+      width: 2rpx;
+      background: $color-border;
+
+      &.done { background: rgba($color-success, 0.3); }
+    }
+
+    .tlTitle {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-semibold;
+      color: $color-text-primary;
+      margin-bottom: $spacing-xs;
+
+      &.warn { color: $color-warning; }
+      &.danger { color: $color-error; }
+      &.success { color: $color-success; }
+    }
+
+    .tlDesc {
+      font-size: $font-size-xs;
+      color: $color-text-secondary;
+      line-height: 1.6;
+    }
+
+    .tlTime {
+      font-size: $font-size-xs;
+      color: $color-text-tertiary;
+      margin-top: 6rpx;
+    }
+
+    .tlValue {
+      display: inline-block;
+      margin-top: $spacing-xs;
+      padding: 4rpx 12rpx;
+      border-radius: $radius-xs;
+      background: $color-bg-page;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
+      color: $color-text-primary;
+
+      &.success { background: $color-success-bg; color: $color-success; }
+      &.warn { background: $color-warning-bg; color: $color-warning; }
+      &.danger { background: $color-error-bg; color: $color-error; }
+    }
+
+    .tlPhoto {
+      width: 200rpx;
+      height: 150rpx;
+      border-radius: $radius-sm;
+      overflow: hidden;
+      margin-top: $spacing-sm;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
   }
 }
