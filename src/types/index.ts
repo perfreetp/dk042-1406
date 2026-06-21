@@ -1,6 +1,8 @@
 export type TestStatus = 'pending' | 'testing' | 'pass' | 'retest' | 'fail' | 'exception';
 export type TestResult = 'pass' | 'retest' | 'fail';
 export type ExceptionType = 'over_limit' | 'device_error' | 'timeout' | 'other';
+export type HandleResult = 'retest_pass' | 'replace_driver' | 'device_replaced' | 'other';
+export type TodayTaskStatus = 'pending' | 'completed' | 'waiting' | 'handled';
 export type TestStep = 1 | 2 | 3;
 
 export interface UserInfo {
@@ -89,6 +91,7 @@ export interface SafetyNotice {
   handleTime?: string;
   handlerName?: string;
   handleRemark?: string;
+  handleResult?: HandleResult;
 }
 
 export interface StepConfig {

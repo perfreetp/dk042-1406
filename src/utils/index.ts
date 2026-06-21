@@ -39,6 +39,26 @@ export const getExceptionTypeText = (type: string): string => {
   return map[type] || type;
 };
 
+export const getHandleResultText = (result: string): string => {
+  const map: Record<string, string> = {
+    retest_pass: '已复测放行',
+    replace_driver: '安排替班',
+    device_replaced: '设备已更换',
+    other: '其他处理'
+  };
+  return map[result] || result;
+};
+
+export const getTodayTaskStatusText = (status: string): string => {
+  const map: Record<string, string> = {
+    pending: '待检测',
+    completed: '已完成',
+    waiting: '等待安全员处理',
+    handled: '已处理'
+  };
+  return map[status] || status;
+};
+
 export const getAlcoholResult = (value: number): 'pass' | 'retest' | 'fail' => {
   if (value < 20) return 'pass';
   if (value < 80) return 'retest';

@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 import useAppStore from '@/store';
 import type { TestRecord } from '@/types';
-import { formatDateTime, getExceptionTypeText } from '@/utils';
+import { formatDateTime, getExceptionTypeText, getHandleResultText } from '@/utils';
 
 const RecordDetailPage: React.FC = () => {
   const router = useRouter();
@@ -220,14 +220,31 @@ const RecordDetailPage: React.FC = () => {
                   {relatedNotice.handled ? '已处理' : '待处理'}
                 </Text>
               </View>
+              {relatedNotice.handled && relatedNotice.handleResult && (
+                <View className={styles.row}>
+                  <Text className={styles.label}>处理结论</Text>
+                  <Text className={styles.value}>{getHandleResultText(relatedNotice.handleResult)}</Text>
+                </View>
+              )}
               {relatedNotice.handled && relatedNotice.handlerName && (
                 <View className={styles.row}>
                   <Text className={styles.label}>处理人</Text>
                   <Text className={styles.value}>{relatedNotice.handlerName}</Text>
                 </View>
               )}
+              {relatedNotice.handled && relatedNotice.handleTime && (
+                <View className={styles.row}>
+                  <Text className={styles.label}>处理时间</Text>
+                  <Text className={styles.value}>{formatDateTime(relatedNotice.handleTime)}</Text>
+                </View>
+              )}
               {relatedNotice.handled && relatedNotice.handleRemark && (
                 <View className={styles.remark}>{relatedNotice.handleRemark}</View>
+              )}
+              {!relatedNotice.handled && (
+                <View className={styles.remark}>
+                  值班安全员尚未处理，请耐心等待。如有紧急情况请联系车队安全主管。
+                </View>
               )}
             </View>
           </View>

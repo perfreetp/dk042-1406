@@ -1,8 +1,7 @@
 import { create } from 'zustand';
-import type { TestRecord, SafetyNotice, ExceptionType } from '@/types';
+import type { TestRecord, SafetyNotice, ExceptionType, HandleResult, TodayTaskStatus } from '@/types';
 import { mockRecords } from '@/data/mockRecords';
 import { mockSafetyNotices } from '@/data/mockRecords';
-import { generateId } from '@/utils';
 
 interface AppStore {
   records: TestRecord[];
@@ -20,6 +19,13 @@ interface AppStore {
     checkInPhoto?: string;
     testPhoto?: string;
   }) => string;
+  handleSafetyNotice: (params: {
+    noticeId: string;
+    handlerName: string;
+    handleResult: HandleResult;
+    handleRemark: string;
+  }) => void;
+  getTodayTaskStatus: (driverName: string) => TodayTaskStatus;
 }
 
 const useAppStore = create<AppStore>((set, get) => ({
@@ -47,7 +53,7 @@ const useAppStore = create<AppStore>((set, get) => ({
     const dateStr = now.split('T')[0];
 
     const statusMap: Record<string, TestRecord['status']> = {
-      over_limit: 'retest',
+      over_limit: alcoholValue !== undefined && alcoholValue >= 80 ? 'fail' : 'retest',
       device_error: 'exception',
       timeout: 'exception',
       other: 'exception'
@@ -90,6 +96,39 @@ const useAppStore = create<AppStore>((set, get) => ({
     });
 
     return recordId;
+  },
+
+  handleSafetyNotice: (params) => {
+    const { noticeId, handlerName, handleResult, handleRemark } = params;
+    const now = new Date().toISOString();
+    set((state) => ({
+      safetyNotices: state.safetyNotices.map((n) =>
+        n.id === noticeId
+          ? {
+              ...n,
+              handled: true,
+              handleTime: now,
+              handlerName,
+              handleRemark,
+              handleResult
+            }
+          : n
+      )
+    }));
+    console.log('[Store] 处理安全员通知', { noticeId, handleResult, handlerName });
+  },
+
+  getTodayTaskStatus: (driverName: string): TodayTaskStatus => {
+    const state = get();
+    const today = new Date().toISOString().split('T')[0];
+    const todayRecord = state.records.find(
+      (r) => r.date === today && r.driverName === driverName
+    );
+    if (!todayRecord) return 'pending';
+    if (todayRecord.status === 'pass') return 'completed';
+    const relatedNotice = state.safetyNotices.find((n) => n.taskId === todayRecord.id);
+    if (relatedNotice?.handled) return 'handled';
+    return 'waiting';
   }
 }));
 

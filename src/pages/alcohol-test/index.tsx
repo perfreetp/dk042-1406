@@ -337,9 +337,17 @@ const AlcoholTestPage: React.FC = () => {
           <ResultCard
             result={testResult}
             alcoholValue={finalValue}
-            onPrimaryAction={testResult === 'pass' ? handleResultPrimary : handleRetest}
+            onPrimaryAction={
+              testResult === 'pass'
+                ? handleResultPrimary
+                : testResult === 'retest'
+                ? handleRetest
+                : handleGoExceptionReport
+            }
             onSecondaryAction={testResult === 'retest' ? handleGoExceptionReport : undefined}
-            primaryText={testResult === 'pass' ? '完成' : '立即复测'}
+            primaryText={
+              testResult === 'pass' ? '完成' : testResult === 'retest' ? '立即复测' : '上报异常'
+            }
             secondaryText={testResult === 'retest' ? '上报异常' : undefined}
           />
         </View>

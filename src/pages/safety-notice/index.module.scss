@@ -247,3 +247,155 @@
     color: $color-text-tertiary;
   }
 }
+
+.handleBtn {
+  width: 100%;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: $color-primary;
+  color: $color-text-white;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  margin-top: $spacing-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.99);
+  }
+}
+
+.handleResultTag {
+  display: inline-block;
+  padding: 6rpx 16rpx;
+  background: $color-success-bg;
+  border-radius: $radius-sm;
+  font-size: 20rpx;
+  color: $color-success;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-sm;
+}
+
+.modalMask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modalContent {
+  width: 100%;
+  background: $color-bg-card;
+  border-radius: $radius-lg $radius-lg 0 0;
+  padding: $spacing-lg $page-padding calc(40rpx + env(safe-area-inset-bottom));
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.modalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.modalClose {
+  font-size: 40rpx;
+  color: $color-text-tertiary;
+  padding: 0 10rpx;
+  line-height: 1;
+}
+
+.modalSection {
+  margin-bottom: $spacing-lg;
+}
+
+.modalLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.resultOptions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
+}
+
+.resultOption {
+  padding: $spacing-md $spacing-sm;
+  border-radius: $radius-md;
+  border: 2rpx solid $color-border;
+  background: $color-bg-card;
+  text-align: center;
+  transition: all $transition-fast;
+
+  &.active {
+    border-color: $color-primary;
+    background: $color-primary-bg;
+  }
+
+  .resultName {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+  }
+}
+
+.modalTextarea {
+  width: 100%;
+  min-height: 160rpx;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.modalActions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+}
+
+.modalBtnCancel {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+  color: $color-text-secondary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.modalBtnConfirm {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: $color-primary;
+  color: $color-text-white;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}

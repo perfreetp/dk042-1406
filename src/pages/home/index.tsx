@@ -13,6 +13,10 @@ const HomePage: React.FC = () => {
   const [selectedRouteId, setSelectedRouteId] = useState<string>('');
   const [task, setTask] = useState<MorningTask>(mockTodayTask);
   const records = useAppStore((s) => s.records);
+  const safetyNotices = useAppStore((s) => s.safetyNotices);
+  const getTodayTaskStatus = useAppStore((s) => s.getTodayTaskStatus);
+
+  const todayStatus = useMemo(() => getTodayTaskStatus(mockUser.name), [getTodayTaskStatus, records, safetyNotices]);
 
   const stats = useMemo(() => {
     const total = records.length;
@@ -26,7 +30,22 @@ const HomePage: React.FC = () => {
   const handleStartTest = () => {
     const bus = mockBusList.find((b) => b.id === selectedBusId);
     const route = mockRouteList.find((r) => r.id === selectedRouteId);
-    if (!bus || !route) return;
+
+    if (todayStatus === 'waiting') {
+      console.log('[Home] 查看处理进度');
+      Taro.navigateTo({ url: '/pages/safety-notice/index' });
+      return;
+    }
+    if (todayStatus === 'handled') {
+      console.log('[Home] 查看今日记录');
+      Taro.switchTab({ url: '/pages/records/index' });
+      return;
+    }
+
+    if (!bus || !route) {
+      Taro.showToast({ title: '请先选择车牌和线路', icon: 'none' });
+      return;
+    }
 
     setTask((prev) => ({
       ...prev,
@@ -39,7 +58,7 @@ const HomePage: React.FC = () => {
       assistantPhone: route.assistantPhone
     }));
 
-    console.log('[Home] 开始酒测任务', { bus: bus.plateNo, route: route.name });
+    console.log('[Home] 开始酒测任务', { bus: bus.plateNo, route: route.name, todayStatus });
 
     Taro.navigateTo({
       url: `/pages/alcohol-test/index?busId=${bus.id}&routeId=${route.id}`
@@ -110,6 +129,7 @@ const HomePage: React.FC = () => {
           onBusChange={setSelectedBusId}
           onRouteChange={setSelectedRouteId}
           onStartTest={handleStartTest}
+          todayStatus={todayStatus}
         />
 
         <View className={styles.sectionTitle}>

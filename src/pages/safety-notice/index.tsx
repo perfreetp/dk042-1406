@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, Image } from '@tarojs/components';
+import { View, Text, Image, Textarea, Button } from '@tarojs/components';
+import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import useAppStore from '@/store';
-import type { SafetyNotice } from '@/types';
-import { formatDateTime, getExceptionTypeText } from '@/utils';
+import type { SafetyNotice, HandleResult } from '@/types';
+import { formatDateTime, getExceptionTypeText, getHandleResultText } from '@/utils';
 
 type FilterType = 'all' | 'pending' | 'handled';
 
@@ -14,9 +15,22 @@ const FILTERS: { key: FilterType; label: string }[] = [
   { key: 'handled', label: '已处理' }
 ];
 
+const HANDLE_RESULTS: { key: HandleResult; name: string }[] = [
+  { key: 'retest_pass', name: '已复测放行' },
+  { key: 'replace_driver', name: '安排替班' },
+  { key: 'device_replaced', name: '设备已更换' },
+  { key: 'other', name: '其他处理' }
+];
+
 const SafetyNoticePage: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('all');
   const safetyNotices = useAppStore((s) => s.safetyNotices);
+  const handleSafetyNotice = useAppStore((s) => s.handleSafetyNotice);
+
+  const [showModal, setShowModal] = useState(false);
+  const [activeNotice, setActiveNotice] = useState<SafetyNotice | null>(null);
+  const [handleResult, setHandleResult] = useState<HandleResult>('retest_pass');
+  const [handleRemark, setHandleRemark] = useState('');
 
   const stats = useMemo(() => {
     const total = safetyNotices.length;
@@ -30,6 +44,38 @@ const SafetyNoticePage: React.FC = () => {
     if (filter === 'pending') return safetyNotices.filter((n) => !n.handled);
     return safetyNotices.filter((n) => n.handled);
   }, [filter, safetyNotices]);
+
+  const canSubmitHandle = handleRemark.trim().length >= 5;
+
+  const openHandleModal = (notice: SafetyNotice) => {
+    if (notice.handled) return;
+    setActiveNotice(notice);
+    setHandleResult('retest_pass');
+    setHandleRemark('');
+    setShowModal(true);
+    console.log('[SafetyNotice] 打开处理弹窗', notice.id);
+  };
+
+  const closeHandleModal = () => {
+    setShowModal(false);
+    setActiveNotice(null);
+  };
+
+  const handleSubmitHandle = () => {
+    if (!activeNotice) return;
+    if (handleRemark.trim().length < 5) {
+      return;
+    }
+    handleSafetyNotice({
+      noticeId: activeNotice.id,
+      handlerName: '安全员-刘主管',
+      handleResult,
+      handleRemark: handleRemark.trim()
+    });
+    console.log('[SafetyNotice] 提交处理', { noticeId: activeNotice.id, handleResult });
+    Taro.showToast({ title: '处理完成', icon: 'success' });
+    closeHandleModal();
+  };
 
   return (
     <View className={styles.page}>
@@ -129,8 +175,13 @@ const SafetyNoticePage: React.FC = () => {
                 </View>
               )}
 
-              {notice.handled && notice.handlerName && (
+              {notice.handled ? (
                 <View className={styles.handleInfo}>
+                  {notice.handleResult && (
+                    <View className={styles.handleResultTag}>
+                      {getHandleResultText(notice.handleResult)}
+                    </View>
+                  )}
                   <View className={styles.row}>
                     <Text className={styles.label}>处理人</Text>
                     <Text className={styles.value}>{notice.handlerName}</Text>
@@ -145,6 +196,10 @@ const SafetyNoticePage: React.FC = () => {
                     <View className={styles.remark}>{notice.handleRemark}</View>
                   )}
                 </View>
+              ) : (
+                <Button className={styles.handleBtn} onClick={() => openHandleModal(notice)}>
+                  立即处理
+                </Button>
               )}
             </View>
           ))
@@ -155,6 +210,85 @@ const SafetyNoticePage: React.FC = () => {
           </View>
         )}
       </View>
+
+      {showModal && activeNotice && (
+        <View className={styles.modalMask} onClick={closeHandleModal}>
+          <View className={styles.modalContent} catchMove>
+            <View className={styles.modalHeader}>
+              <Text className={styles.modalTitle}>处理异常通知</Text>
+              <Text className={styles.modalClose} onClick={closeHandleModal}>
+                ×
+              </Text>
+            </View>
+
+            <View className={styles.modalSection}>
+              <Text className={styles.modalLabel}>司机与车牌</Text>
+              <Text style={{ fontSize: 24, color: '#64748B' }}>
+                {activeNotice.driverName} · {activeNotice.plateNo}
+              </Text>
+            </View>
+
+            <View className={styles.modalSection}>
+              <Text className={styles.modalLabel}>异常类型</Text>
+              <View className={styles.typeTag}>
+                {getExceptionTypeText(activeNotice.exceptionType)}
+              </View>
+            </View>
+
+            <View className={styles.modalSection}>
+              <Text className={styles.modalLabel}>
+                处理结果 <Text style={{ color: '#EF4444' }}>*</Text>
+              </Text>
+              <View className={styles.resultOptions}>
+                {HANDLE_RESULTS.map((r) => (
+                  <View
+                    key={r.key}
+                    className={classnames(
+                      styles.resultOption,
+                      handleResult === r.key && styles.active
+                    )}
+                    onClick={() => setHandleResult(r.key)}
+                  >
+                    <Text className={styles.resultName}>{r.name}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <View className={styles.modalSection}>
+              <Text className={styles.modalLabel}>
+                处理意见 <Text style={{ color: '#EF4444' }}>*</Text>
+                <Text style={{ fontSize: 22, color: '#94A3B8', marginLeft: 12 }}>
+                  至少5字
+                </Text>
+              </Text>
+              <Textarea
+                className={styles.modalTextarea}
+                value={handleRemark}
+                onInput={(e) => setHandleRemark(e.detail.value.slice(0, 200))}
+                placeholder='请填写处理意见，例如：已现场监督复测，复测值8mg/100ml，合格放行'
+                maxlength={200}
+                autoHeight
+              />
+            </View>
+
+            <View className={styles.modalActions}>
+              <Button className={styles.modalBtnCancel} onClick={closeHandleModal}>
+                取消
+              </Button>
+              <Button
+                className={classnames(
+                  styles.modalBtnConfirm,
+                  !canSubmitHandle && styles.disabled
+                )}
+                onClick={handleSubmitHandle}
+              >
+                确认处理
+              </Button>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 };

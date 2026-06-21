@@ -204,3 +204,99 @@
     color: rgba($color-primary, 0.5);
   }
 }
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-button;
+  font-size: 20rpx;
+  font-weight: $font-weight-medium;
+
+  &.pending {
+    background: rgba(255, 255, 255, 0.2);
+    color: $color-text-white;
+  }
+
+  &.completed {
+    background: rgba($color-success, 0.25);
+    color: $color-text-white;
+  }
+
+  &.waiting {
+    background: rgba($color-warning, 0.95);
+    color: $color-text-white;
+  }
+
+  &.handled {
+    background: rgba($color-success, 0.95);
+    color: $color-text-white;
+  }
+}
+
+.doneBanner {
+  margin-top: $spacing-lg;
+  background: rgba($color-success, 0.12);
+  border: 1rpx solid rgba($color-success, 0.3);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.doneIcon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  background: $color-success;
+  color: $color-text-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  margin-right: $spacing-sm;
+}
+
+.doneText {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-success;
+  font-weight: $font-weight-medium;
+}
+
+.waitingBanner {
+  margin-top: $spacing-lg;
+  background: rgba($color-warning, 0.15);
+  border: 1rpx solid rgba($color-warning, 0.35);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.waitingIcon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  background: $color-warning;
+  color: $color-text-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  margin-right: $spacing-sm;
+}
+
+.waitingText {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-warning;
+  font-weight: $font-weight-medium;
+  line-height: 1.5;
+}
