@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 import StepIndicator from '@/components/StepIndicator';
 import ResultCard from '@/components/ResultCard';
+import useAppStore from '@/store';
 import { mockBusList, mockRouteList } from '@/data/mockTasks';
 import { mockUser } from '@/data/mockUser';
 import type { TestStep, TestResult, StepConfig } from '@/types';
@@ -20,6 +21,8 @@ const AlcoholTestPage: React.FC = () => {
   const router = useRouter();
   const busId = router.params.busId || '';
   const routeId = router.params.routeId || '';
+  const addRecord = useAppStore((s) => s.addRecord);
+  const addExceptionRecord = useAppStore((s) => s.addExceptionRecord);
 
   const bus = mockBusList.find((b) => b.id === busId);
   const route = mockRouteList.find((r) => r.id === routeId);
@@ -33,8 +36,7 @@ const AlcoholTestPage: React.FC = () => {
   const [finalValue, setFinalValue] = useState<number>(0);
 
   const resultValue = useMemo(() => {
-    const num = parseFloat(alcoholValue) || 0;
-    return num;
+    return parseFloat(alcoholValue) || 0;
   }, [alcoholValue]);
 
   const canNextStep1 = !!checkInPhoto;
@@ -49,7 +51,6 @@ const AlcoholTestPage: React.FC = () => {
       });
       const path = res.tempFilePaths[0];
       console.log('[AlcoholTest] 拍照成功', { type, path });
-
       if (type === 'checkIn') {
         setCheckInPhoto(path || 'https://picsum.photos/id/177/400/300');
       } else {
@@ -87,11 +88,7 @@ const AlcoholTestPage: React.FC = () => {
       setFinalValue(resultValue);
       setTestResult(result);
       setShowResult(true);
-      console.log('[AlcoholTest] 完成检测', {
-        value: resultValue,
-        result,
-        time: formatDateTime(new Date().toISOString())
-      });
+      console.log('[AlcoholTest] 完成检测', { value: resultValue, result });
     }
   };
 
@@ -105,7 +102,21 @@ const AlcoholTestPage: React.FC = () => {
 
   const handleResultPrimary = () => {
     if (testResult === 'pass') {
-      console.log('[AlcoholTest] 记录保存成功，返回首页');
+      addRecord({
+        date: new Date().toISOString().split('T')[0],
+        driverName: mockUser.name,
+        plateNo: bus?.plateNo || '',
+        routeName: route?.name || '',
+        firstStopTime: route?.firstStopTime || '',
+        status: 'pass',
+        result: 'pass',
+        alcoholValue: finalValue,
+        checkInPhoto: checkInPhoto || 'https://picsum.photos/id/177/400/300',
+        testPhoto: testPhoto || 'https://picsum.photos/id/91/400/300',
+        testTime: new Date().toISOString(),
+        assistantName: route?.assistantName || ''
+      });
+      console.log('[AlcoholTest] 合格记录已保存');
       Taro.showToast({ title: '检测完成，可发车', icon: 'success' });
       setTimeout(() => {
         Taro.switchTab({ url: '/pages/home/index' });
@@ -115,18 +126,19 @@ const AlcoholTestPage: React.FC = () => {
     }
   };
 
-  const handleResultSecondary = () => {
+  const handleRetest = () => {
     setShowResult(false);
     setCurrentStep(2);
     setAlcoholValue('');
     setTestPhoto('');
+    console.log('[AlcoholTest] 进入复测，已清空读数和读数照片');
     Taro.showToast({ title: '请等待5分钟后复测', icon: 'none' });
   };
 
   const handleGoExceptionReport = () => {
-    const type = testResult === 'fail' ? 'over_limit' : testResult === 'retest' ? 'over_limit' : 'other';
+    const type = testResult === 'fail' ? 'over_limit' : 'over_limit';
     Taro.navigateTo({
-      url: `/pages/exception-report/index?type=${type}&value=${finalValue}&checkIn=${encodeURIComponent(checkInPhoto)}&test=${encodeURIComponent(testPhoto)}`
+      url: `/pages/exception-report/index?type=${type}&value=${finalValue}&plateNo=${encodeURIComponent(bus?.plateNo || '')}&routeName=${encodeURIComponent(route?.name || '')}&checkIn=${encodeURIComponent(checkInPhoto)}&test=${encodeURIComponent(testPhoto)}`
     });
   };
 
@@ -277,7 +289,7 @@ const AlcoholTestPage: React.FC = () => {
               </View>
             </View>
 
-            <Text className={styles.stepTitle} style={{ marginTop: '$spacing-xl' }}>
+            <Text className={styles.stepTitle} style={{ marginTop: '48rpx' }}>
               留痕照片
             </Text>
             <View className={styles.confirmPhotos}>
@@ -325,8 +337,10 @@ const AlcoholTestPage: React.FC = () => {
           <ResultCard
             result={testResult}
             alcoholValue={finalValue}
-            onPrimaryAction={handleResultPrimary}
-            onSecondaryAction={testResult === 'retest' ? handleResultSecondary : undefined}
+            onPrimaryAction={testResult === 'pass' ? handleResultPrimary : handleRetest}
+            onSecondaryAction={testResult === 'retest' ? handleGoExceptionReport : undefined}
+            primaryText={testResult === 'pass' ? '完成' : '立即复测'}
+            secondaryText={testResult === 'retest' ? '上报异常' : undefined}
           />
         </View>
       )}

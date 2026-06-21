@@ -4,7 +4,7 @@ import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import RecordItem from '@/components/RecordItem';
-import { mockRecords } from '@/data/mockRecords';
+import useAppStore from '@/store';
 import type { TestStatus } from '@/types';
 
 const FILTERS: { key: TestStatus | 'all'; label: string }[] = [
@@ -17,20 +17,21 @@ const FILTERS: { key: TestStatus | 'all'; label: string }[] = [
 
 const RecordsPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<TestStatus | 'all'>('all');
+  const records = useAppStore((s) => s.records);
 
   const summary = useMemo(() => {
-    const pass = mockRecords.filter((r) => r.status === 'pass').length;
-    const retest = mockRecords.filter((r) => r.status === 'retest').length;
-    const exception = mockRecords.filter(
+    const pass = records.filter((r) => r.status === 'pass').length;
+    const retest = records.filter((r) => r.status === 'retest').length;
+    const exception = records.filter(
       (r) => r.status === 'fail' || r.status === 'exception'
     ).length;
     return { pass, retest, exception };
-  }, []);
+  }, [records]);
 
   const filteredRecords = useMemo(() => {
-    if (activeFilter === 'all') return mockRecords;
-    return mockRecords.filter((r) => r.status === activeFilter);
-  }, [activeFilter]);
+    if (activeFilter === 'all') return records;
+    return records.filter((r) => r.status === activeFilter);
+  }, [activeFilter, records]);
 
   const handleRecordClick = (id: string) => {
     console.log('[Records] 查看记录详情', id);

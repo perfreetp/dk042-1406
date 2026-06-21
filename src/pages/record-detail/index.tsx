@@ -3,22 +3,23 @@ import { View, Text, Image } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import { mockRecords } from '@/data/mockRecords';
-import { mockSafetyNotices } from '@/data/mockRecords';
+import useAppStore from '@/store';
 import type { TestRecord } from '@/types';
 import { formatDateTime, getExceptionTypeText } from '@/utils';
 
 const RecordDetailPage: React.FC = () => {
   const router = useRouter();
   const id = router.params.id || '';
+  const records = useAppStore((s) => s.records);
+  const safetyNotices = useAppStore((s) => s.safetyNotices);
 
   const record = useMemo<TestRecord | undefined>(() => {
-    return mockRecords.find((r) => r.id === id);
-  }, [id]);
+    return records.find((r) => r.id === id);
+  }, [id, records]);
 
   const relatedNotice = useMemo(() => {
-    return mockSafetyNotices.find((n) => n.taskId === id);
-  }, [id]);
+    return safetyNotices.find((n) => n.taskId === id);
+  }, [id, safetyNotices]);
 
   const getResultIcon = () => {
     switch (record?.status) {

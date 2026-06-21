@@ -3,6 +3,8 @@ import { View, Text, Image, Textarea, Button } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
+import useAppStore from '@/store';
+import { mockUser } from '@/data/mockUser';
 import type { ExceptionType } from '@/types';
 import { getExceptionTypeText, formatDateTime } from '@/utils';
 
@@ -19,6 +21,9 @@ const ExceptionReportPage: React.FC = () => {
   const initValue = router.params.value ? parseFloat(router.params.value) : undefined;
   const initCheckIn = router.params.checkIn ? decodeURIComponent(router.params.checkIn) : '';
   const initTest = router.params.test ? decodeURIComponent(router.params.test) : '';
+  const initPlateNo = router.params.plateNo ? decodeURIComponent(router.params.plateNo) : '';
+  const initRouteName = router.params.routeName ? decodeURIComponent(router.params.routeName) : '';
+  const addExceptionRecord = useAppStore((s) => s.addExceptionRecord);
 
   const [exceptionType, setExceptionType] = useState<ExceptionType>(initType);
   const [remark, setRemark] = useState<string>('');
@@ -30,7 +35,7 @@ const ExceptionReportPage: React.FC = () => {
   });
 
   const maxWords = 200;
-  const canSubmit = exceptionType && remark.trim().length >= 10;
+  const canSubmit = exceptionType && remark.trim().length >= 10 && photos.length > 0;
 
   const handleAddPhoto = async () => {
     if (photos.length >= 6) {
@@ -74,13 +79,6 @@ const ExceptionReportPage: React.FC = () => {
       return;
     }
 
-    console.log('[ExceptionReport] 提交异常上报', {
-      type: exceptionType,
-      remark,
-      photos: photos.length,
-      time: formatDateTime(new Date().toISOString())
-    });
-
     Taro.showModal({
       title: '确认提交',
       content: '异常上报后将自动通知值班安全员，安全员将进行后续处理，您无法自行修改为通过状态。是否确认提交？',
@@ -89,6 +87,18 @@ const ExceptionReportPage: React.FC = () => {
         if (res.confirm) {
           Taro.showLoading({ title: '提交中...' });
           setTimeout(() => {
+            const recordId = addExceptionRecord({
+              type: exceptionType,
+              driverName: mockUser.name,
+              plateNo: initPlateNo,
+              routeName: initRouteName,
+              remark: remark.trim(),
+              photos,
+              alcoholValue: initValue,
+              checkInPhoto: initCheckIn || undefined,
+              testPhoto: initTest || undefined
+            });
+            console.log('[ExceptionReport] 提交异常上报完成', { recordId, type: exceptionType });
             Taro.hideLoading();
             Taro.showToast({ title: '已通知安全员', icon: 'success' });
             setTimeout(() => {
@@ -136,14 +146,26 @@ const ExceptionReportPage: React.FC = () => {
           </View>
         </View>
 
-        {initValue !== undefined && (
-          <View className={styles.card}>
-            <Text className={styles.cardTitle}>检测信息</Text>
-            <View className={styles.infoSummary}>
-              <View className={styles.row}>
-                <Text className={styles.label}>异常类型</Text>
-                <Text className={styles.value}>{getExceptionTypeText(exceptionType)}</Text>
-              </View>
+        <View className={styles.card}>
+          <Text className={styles.cardTitle}>基本信息</Text>
+          <View className={styles.infoSummary}>
+            <View className={styles.row}>
+              <Text className={styles.label}>驾驶员</Text>
+              <Text className={styles.value}>{mockUser.name}</Text>
+            </View>
+            <View className={styles.row}>
+              <Text className={styles.label}>车牌号码</Text>
+              <Text className={styles.value}>{initPlateNo || '未选择'}</Text>
+            </View>
+            <View className={styles.row}>
+              <Text className={styles.label}>行驶线路</Text>
+              <Text className={styles.value}>{initRouteName || '未选择'}</Text>
+            </View>
+            <View className={styles.row}>
+              <Text className={styles.label}>异常类型</Text>
+              <Text className={styles.value}>{getExceptionTypeText(exceptionType)}</Text>
+            </View>
+            {initValue !== undefined && (
               <View className={styles.row}>
                 <Text className={styles.label}>酒精读数</Text>
                 <Text
@@ -155,13 +177,13 @@ const ExceptionReportPage: React.FC = () => {
                   {initValue} mg/100ml
                 </Text>
               </View>
-              <View className={styles.row}>
-                <Text className={styles.label}>上报时间</Text>
-                <Text className={styles.value}>{formatDateTime(new Date().toISOString())}</Text>
-              </View>
+            )}
+            <View className={styles.row}>
+              <Text className={styles.label}>上报时间</Text>
+              <Text className={styles.value}>{formatDateTime(new Date().toISOString())}</Text>
             </View>
           </View>
-        )}
+        </View>
 
         <View className={styles.card}>
           <View className={styles.formGroup}>

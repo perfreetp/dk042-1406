@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import { mockSafetyNotices } from '@/data/mockRecords';
+import useAppStore from '@/store';
 import type { SafetyNotice } from '@/types';
 import { formatDateTime, getExceptionTypeText } from '@/utils';
 
@@ -16,19 +16,20 @@ const FILTERS: { key: FilterType; label: string }[] = [
 
 const SafetyNoticePage: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('all');
+  const safetyNotices = useAppStore((s) => s.safetyNotices);
 
   const stats = useMemo(() => {
-    const total = mockSafetyNotices.length;
-    const pending = mockSafetyNotices.filter((n) => !n.handled).length;
-    const handled = mockSafetyNotices.filter((n) => n.handled).length;
+    const total = safetyNotices.length;
+    const pending = safetyNotices.filter((n) => !n.handled).length;
+    const handled = safetyNotices.filter((n) => n.handled).length;
     return { total, pending, handled };
-  }, []);
+  }, [safetyNotices]);
 
   const filteredList = useMemo<SafetyNotice[]>(() => {
-    if (filter === 'all') return mockSafetyNotices;
-    if (filter === 'pending') return mockSafetyNotices.filter((n) => !n.handled);
-    return mockSafetyNotices.filter((n) => n.handled);
-  }, [filter]);
+    if (filter === 'all') return safetyNotices;
+    if (filter === 'pending') return safetyNotices.filter((n) => !n.handled);
+    return safetyNotices.filter((n) => n.handled);
+  }, [filter, safetyNotices]);
 
   return (
     <View className={styles.page}>

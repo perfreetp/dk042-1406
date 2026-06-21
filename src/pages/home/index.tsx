@@ -3,24 +3,25 @@ import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import TaskCard from '@/components/TaskCard';
+import useAppStore from '@/store';
 import { mockUser } from '@/data/mockUser';
 import { mockBusList, mockRouteList, mockTodayTask } from '@/data/mockTasks';
-import { mockRecords } from '@/data/mockRecords';
 import type { MorningTask } from '@/types';
 
 const HomePage: React.FC = () => {
   const [selectedBusId, setSelectedBusId] = useState<string>('');
   const [selectedRouteId, setSelectedRouteId] = useState<string>('');
   const [task, setTask] = useState<MorningTask>(mockTodayTask);
+  const records = useAppStore((s) => s.records);
 
   const stats = useMemo(() => {
-    const total = mockRecords.length;
-    const passCount = mockRecords.filter((r) => r.status === 'pass').length;
-    const exceptionCount = mockRecords.filter(
+    const total = records.length;
+    const passCount = records.filter((r) => r.status === 'pass').length;
+    const exceptionCount = records.filter(
       (r) => r.status === 'retest' || r.status === 'fail' || r.status === 'exception'
     ).length;
     return { total, passCount, exceptionCount };
-  }, []);
+  }, [records]);
 
   const handleStartTest = () => {
     const bus = mockBusList.find((b) => b.id === selectedBusId);
@@ -51,6 +52,24 @@ const HomePage: React.FC = () => {
 
   const handleGoSafety = () => {
     Taro.navigateTo({ url: '/pages/safety-notice/index' });
+  };
+
+  const handleDeviceError = () => {
+    const bus = mockBusList.find((b) => b.id === selectedBusId);
+    const route = mockRouteList.find((r) => r.id === selectedRouteId);
+    console.log('[Home] 设备故障上报');
+    Taro.navigateTo({
+      url: `/pages/exception-report/index?type=device_error&plateNo=${encodeURIComponent(bus?.plateNo || '')}&routeName=${encodeURIComponent(route?.name || '')}`
+    });
+  };
+
+  const handleTimeout = () => {
+    const bus = mockBusList.find((b) => b.id === selectedBusId);
+    const route = mockRouteList.find((r) => r.id === selectedRouteId);
+    console.log('[Home] 超时未检上报');
+    Taro.navigateTo({
+      url: `/pages/exception-report/index?type=timeout&plateNo=${encodeURIComponent(bus?.plateNo || '')}&routeName=${encodeURIComponent(route?.name || '')}`
+    });
   };
 
   return (
@@ -106,6 +125,14 @@ const HomePage: React.FC = () => {
             <View className={`${styles.actionIcon} ${styles.orange}`}>⚠️</View>
             <Text className={styles.actionText}>异常处理</Text>
           </View>
+          <View className={styles.actionCard} onClick={handleDeviceError}>
+            <View className={`${styles.actionIcon} ${styles.red}`}>🔧</View>
+            <Text className={styles.actionText}>设备故障</Text>
+          </View>
+          <View className={styles.actionCard} onClick={handleTimeout}>
+            <View className={`${styles.actionIcon} ${styles.orange}`}>⏰</View>
+            <Text className={styles.actionText}>超时未检</Text>
+          </View>
         </View>
 
         <View className={styles.sectionTitle}>
@@ -122,7 +149,7 @@ const HomePage: React.FC = () => {
             <Text className={styles.tipItem}>第一步：拍照签到，确认是本人操作</Text>
             <Text className={styles.tipItem}>第二步：使用酒测仪吹气，录入读数或扫码同步</Text>
             <Text className={styles.tipItem}>第三步：确认检测结果，合格后可安全发车</Text>
-            <Text className={styles.tipItem}>如检测异常，需填写原因并拍照上报安全员</Text>
+            <Text className={styles.tipItem}>如酒测仪故障或超时未检，可从快捷操作直接上报</Text>
           </View>
         </View>
       </View>

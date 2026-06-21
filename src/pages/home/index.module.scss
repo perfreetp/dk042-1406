@@ -159,15 +159,15 @@
 
 .quickActions {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $spacing-md;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-sm;
   margin-top: $spacing-md;
 }
 
 .actionCard {
   background: $color-bg-card;
-  border-radius: $radius-lg;
-  padding: $spacing-lg;
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-sm;
   box-shadow: $shadow-card;
   display: flex;
   flex-direction: column;
@@ -181,14 +181,14 @@
 }
 
 .actionIcon {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: $radius-lg;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40rpx;
-  margin-bottom: $spacing-sm;
+  font-size: 36rpx;
+  margin-bottom: $spacing-xs;
 
   &.blue {
     background: $color-primary-bg;
@@ -199,10 +199,16 @@
     background: $color-warning-bg;
     color: $color-warning;
   }
+
+  &.red {
+    background: $color-error-bg;
+    color: $color-error;
+  }
 }
 
 .actionText {
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   font-weight: $font-weight-medium;
   color: $color-text-primary;
+  white-space: nowrap;
 }

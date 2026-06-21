@@ -151,6 +151,16 @@
     background: $color-success;
     color: $color-text-white;
   }
+
+  &.retest {
+    background: $color-warning;
+    color: $color-text-white;
+  }
+
+  &.fail {
+    background: $color-error;
+    color: $color-text-white;
+  }
 }
 
 .btnSecondary {
@@ -172,8 +182,9 @@
   }
 
   &.retest {
-    border-color: $color-warning;
-    color: $color-warning;
+    background: $color-bg-card;
+    border-color: $color-error;
+    color: $color-error;
   }
 
   &.fail {

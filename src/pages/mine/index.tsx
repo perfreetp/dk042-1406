@@ -2,29 +2,31 @@ import React, { useMemo } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
+import useAppStore from '@/store';
 import { mockUser } from '@/data/mockUser';
-import { mockRecords } from '@/data/mockRecords';
-import { mockSafetyNotices } from '@/data/mockRecords';
 
 const MinePage: React.FC = () => {
+  const records = useAppStore((s) => s.records);
+  const safetyNotices = useAppStore((s) => s.safetyNotices);
+
   const monthStats = useMemo(() => {
     const now = new Date();
     const thisMonth = now.getMonth();
     const thisYear = now.getFullYear();
-    const monthRecords = mockRecords.filter((r) => {
+    const monthRecords = records.filter((r) => {
       const d = new Date(r.date);
       return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
     });
-    const totalDays = mockRecords.length;
+    const totalDays = records.length;
     const passDays = monthRecords.filter((r) => r.status === 'pass').length;
     const abnormalDays = monthRecords.filter(
       (r) => r.status !== 'pass' && r.status !== 'pending' && r.status !== 'testing'
     ).length;
     const passRate = totalDays > 0 ? Math.round((passDays / totalDays) * 100) : 0;
     return { totalDays, passDays, abnormalDays, passRate };
-  }, []);
+  }, [records]);
 
-  const unhandledCount = mockSafetyNotices.filter((n) => !n.handled).length;
+  const unhandledCount = safetyNotices.filter((n) => !n.handled).length;
 
   const handleMenuClick = (type: string) => {
     console.log('[Mine] 点击菜单项', type);
