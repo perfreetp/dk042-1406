@@ -6,7 +6,8 @@ export default defineAppConfig({
     'pages/alcohol-test/index',
     'pages/exception-report/index',
     'pages/record-detail/index',
-    'pages/safety-notice/index'
+    'pages/safety-notice/index',
+    'pages/supervisor-summary/index'
   ],
   window: {
     backgroundTextStyle: 'light',

@@ -111,5 +111,6 @@
   &.waiting { background: $color-warning-bg; color: $color-warning; }
   &.handled { background: $color-success-bg; color: $color-success; }
   &.retest_pass { background: $color-success-bg; color: $color-success; }
+  &.retest_completed { background: $color-primary-bg; color: $color-primary; }
   &.replace_driver { background: $color-primary-bg; color: $color-primary; }
 }

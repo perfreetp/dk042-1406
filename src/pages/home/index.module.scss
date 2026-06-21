@@ -159,7 +159,7 @@
 
 .quickActions {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: $spacing-sm;
   margin-top: $spacing-md;
 }
@@ -211,4 +211,150 @@
   font-weight: $font-weight-medium;
   color: $color-text-primary;
   white-space: nowrap;
+}
+
+.loopStatus {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-top: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.loopHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.loopTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+}
+
+.loopIcon {
+  margin-right: $spacing-sm;
+}
+
+.loopHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+}
+
+.step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.stepDot {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  margin: 0 auto $spacing-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: $font-weight-bold;
+  position: relative;
+  z-index: 2;
+}
+
+.stepDot.pending {
+  background: $color-bg-gray;
+  color: $color-text-tertiary;
+  border: 2rpx solid $color-border;
+}
+
+.stepDot.active {
+  background: $color-warning;
+  color: $color-text-white;
+  box-shadow: 0 0 0 8rpx rgba(245, 158, 11, 0.15);
+}
+
+.stepDot.done {
+  background: $color-success;
+  color: $color-text-white;
+}
+
+.stepDot.returned {
+  background: $color-error;
+  color: $color-text-white;
+}
+
+.stepLine {
+  position: absolute;
+  top: 28rpx;
+  left: 50%;
+  right: -50%;
+  height: 4rpx;
+  background: $color-border;
+  z-index: 1;
+}
+
+.stepLine.done {
+  background: $color-success;
+}
+
+.step:last-child .stepLine {
+  display: none;
+}
+
+.stepLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.stepLabel.active {
+  color: $color-warning;
+  font-weight: $font-weight-semibold;
+}
+
+.stepLabel.done {
+  color: $color-success;
+  font-weight: $font-weight-semibold;
+}
+
+.stepLabel.returned {
+  color: $color-error;
+  font-weight: $font-weight-semibold;
+}
+
+.loopCTA {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: $color-primary-bg;
+  border-radius: $radius-md;
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.loopCTA.warn {
+  background: $color-warning-bg;
+  color: $color-warning;
+}
+
+.loopCTA.success {
+  background: $color-success-bg;
+  color: $color-success;
+}
+
+.loopCTA.danger {
+  background: $color-error-bg;
+  color: $color-error;
 }

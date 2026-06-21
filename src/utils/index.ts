@@ -1,4 +1,4 @@
-import type { HandleResult } from '@/types';
+import type { HandleResult, SupervisorStatus, TodayTaskStatus } from '@/types';
 
 export const formatTime = (dateStr: string): string => {
   const date = new Date(dateStr);
@@ -46,6 +46,7 @@ export const getHandleResultText = (result: string): string => {
     retest_pass: '已复测放行',
     replace_driver: '安排替班',
     device_replaced: '设备已更换',
+    retest_completed: '补检完成',
     other: '其他处理'
   };
   return map[result] || result;
@@ -55,7 +56,7 @@ export const getDefaultHandleResult = (type: string): HandleResult => {
   const map: Record<string, HandleResult> = {
     over_limit: 'retest_pass',
     device_error: 'device_replaced',
-    timeout: 'other',
+    timeout: 'retest_completed',
     other: 'other'
   };
   return map[type] || 'other';
@@ -65,7 +66,7 @@ export const getRecommendedActions = (type: string): HandleResult[] => {
   const map: Record<string, HandleResult[]> = {
     over_limit: ['retest_pass', 'replace_driver', 'other'],
     device_error: ['device_replaced', 'replace_driver', 'other'],
-    timeout: ['retest_pass', 'other'],
+    timeout: ['retest_completed', 'retest_pass', 'other'],
     other: ['other', 'replace_driver']
   };
   return map[type] || ['other'];
@@ -78,7 +79,8 @@ export const getRecordFilterText = (key: string): string => {
     waiting: '待处理',
     handled: '已处理',
     retest_pass: '已放行',
-    replace_driver: '已替班'
+    replace_driver: '已替班',
+    retest_completed: '补检完成'
   };
   return map[key] || key;
 };
@@ -88,9 +90,30 @@ export const getTodayTaskStatusText = (status: string): string => {
     pending: '待检测',
     completed: '已完成',
     waiting: '等待安全员处理',
-    handled: '已处理'
+    handled: '等待主管确认',
+    waiting_supervisor: '等待主管确认',
+    archived: '已归档',
+    returned: '被退回补充'
   };
   return map[status] || status;
+};
+
+export const getSupervisorStatusText = (status: string): string => {
+  const map: Record<string, string> = {
+    pending_review: '待主管确认',
+    archived: '已归档',
+    returned: '已退回'
+  };
+  return map[status] || status;
+};
+
+export const getCloseLoopStepText = (step: string): string => {
+  const map: Record<string, string> = {
+    safety: '待安全员处理',
+    supervisor: '待主管确认',
+    archived: '已归档'
+  };
+  return map[step] || step;
 };
 
 export const getAlcoholResult = (value: number): 'pass' | 'retest' | 'fail' => {

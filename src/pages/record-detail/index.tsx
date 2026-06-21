@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 import useAppStore from '@/store';
 import type { TestRecord } from '@/types';
-import { formatDateTime, getExceptionTypeText, getHandleResultText } from '@/utils';
+import { formatDateTime, getExceptionTypeText, getHandleResultText, getSupervisorStatusText } from '@/utils';
 
 const RecordDetailPage: React.FC = () => {
   const router = useRouter();
@@ -231,19 +231,54 @@ const RecordDetailPage: React.FC = () => {
               )}
 
               {relatedNotice?.handled ? (
-                <View className={styles.tlItem}>
-                  <View className={classnames(styles.tlDot, styles.done)} />
-                  <Text className={classnames(styles.tlTitle, styles.success)}>
-                    处理完成 · {relatedNotice.handleResult ? getHandleResultText(relatedNotice.handleResult) : '已处理'}
-                  </Text>
-                  <Text className={styles.tlDesc}>
-                    处理人：{relatedNotice.handlerName || '安全员'}
-                    {relatedNotice.handleRemark && `｜${relatedNotice.handleRemark}`}
-                  </Text>
-                  {relatedNotice.handleTime && (
-                    <Text className={styles.tlTime}>{formatDateTime(relatedNotice.handleTime)}</Text>
-                  )}
-                </View>
+                <>
+                  <View className={styles.tlItem}>
+                    <View className={classnames(styles.tlDot, styles.done)} />
+                    <View className={classnames(styles.tlLine, relatedNotice?.supervisorStatus && relatedNotice.supervisorStatus !== 'pending_review' ? styles.done : '')} />
+                    <Text className={classnames(styles.tlTitle, styles.success)}>
+                      处理完成 · {relatedNotice.handleResult ? getHandleResultText(relatedNotice.handleResult) : '已处理'}
+                    </Text>
+                    <Text className={styles.tlDesc}>
+                      处理人：{relatedNotice.handlerName || '安全员'}
+                      {relatedNotice.handleRemark && `｜${relatedNotice.handleRemark}`}
+                    </Text>
+                    {relatedNotice.handleTime && (
+                      <Text className={styles.tlTime}>{formatDateTime(relatedNotice.handleTime)}</Text>
+                    )}
+                  </View>
+
+                  {relatedNotice?.supervisorStatus && relatedNotice.supervisorStatus !== 'pending_review' ? (
+                    <View className={styles.tlItem}>
+                      <View className={classnames(
+                        styles.tlDot,
+                        relatedNotice.supervisorStatus === 'archived' ? styles.done : styles.active
+                      )} />
+                      <Text className={classnames(
+                        styles.tlTitle,
+                        relatedNotice.supervisorStatus === 'archived' ? styles.success : styles.danger
+                      )}>
+                        主管{relatedNotice.supervisorStatus === 'archived' ? '确认归档' : '退回补充'}
+                      </Text>
+                      {relatedNotice.supervisorRemark && (
+                        <Text className={styles.tlDesc}>{relatedNotice.supervisorRemark}</Text>
+                      )}
+                      {relatedNotice.supervisorName && (
+                        <Text className={styles.tlDesc}>处理人：{relatedNotice.supervisorName}</Text>
+                      )}
+                      {relatedNotice.supervisorTime && (
+                        <Text className={styles.tlTime}>{formatDateTime(relatedNotice.supervisorTime)}</Text>
+                      )}
+                    </View>
+                  ) : relatedNotice?.handled && !relatedNotice?.supervisorStatus ? (
+                    <View className={styles.tlItem}>
+                      <View className={classnames(styles.tlDot, styles.active)} />
+                      <Text className={classnames(styles.tlTitle, styles.warn)}>等待主管确认</Text>
+                      <Text className={styles.tlDesc}>
+                        安全员已处理完毕，等待车队主管确认归档
+                      </Text>
+                    </View>
+                  ) : null}
+                </>
               ) : (
                 <View className={styles.tlItem}>
                   <View className={classnames(styles.tlDot, styles.active)} />
@@ -280,6 +315,26 @@ const RecordDetailPage: React.FC = () => {
                   <Text className={styles.value}>{getHandleResultText(relatedNotice.handleResult)}</Text>
                 </View>
               )}
+              {relatedNotice.handleResult === 'retest_pass' && relatedNotice.retestValue !== undefined && (
+                <View className={styles.row}>
+                  <Text className={styles.label}>复测读数</Text>
+                  <Text className={classnames(styles.value, relatedNotice.retestValue < 20 ? styles.success : styles.warn)}>
+                    {relatedNotice.retestValue} mg/100ml
+                  </Text>
+                </View>
+              )}
+              {relatedNotice.handleResult === 'retest_pass' && relatedNotice.retestTime && (
+                <View className={styles.row}>
+                  <Text className={styles.label}>复测时间</Text>
+                  <Text className={styles.value}>{formatDateTime(relatedNotice.retestTime)}</Text>
+                </View>
+              )}
+              {relatedNotice.handleResult === 'retest_pass' && relatedNotice.retestPhoto && (
+                <View style={{ marginTop: 16 }}>
+                  <Text className={styles.label} style={{ display: 'block', marginBottom: 8 }}>复测照片</Text>
+                  <Image src={relatedNotice.retestPhoto} mode='aspectFill' style={{ width: 280, height: 210, borderRadius: 12 }} />
+                </View>
+              )}
               {relatedNotice.handled && relatedNotice.handlerName && (
                 <View className={styles.row}>
                   <Text className={styles.label}>处理人</Text>
@@ -299,6 +354,44 @@ const RecordDetailPage: React.FC = () => {
                 <View className={styles.remark}>
                   值班安全员尚未处理，请耐心等待。如有紧急情况请联系车队安全主管。
                 </View>
+              )}
+            </View>
+          </View>
+        )}
+
+        {relatedNotice?.handled && (relatedNotice?.supervisorStatus || relatedNotice?.supervisorTime) && (
+          <View className={styles.sectionCard}>
+            <View className={styles.sectionTitle}>
+              <View className={styles.icon} style={{ background: 'rgba(30,58,138,0.1)', color: '#1E3A8A' }}>
+                👔
+              </View>
+              主管确认
+            </View>
+            <View className={styles.safetyBox}>
+              <View className={styles.row}>
+                <Text className={styles.label}>主管状态</Text>
+                <Text className={classnames(
+                  styles.value,
+                  relatedNotice.supervisorStatus === 'archived' ? styles.success :
+                  relatedNotice.supervisorStatus === 'returned' ? styles.danger : styles.warn
+                )}>
+                  {getSupervisorStatusText(relatedNotice.supervisorStatus)}
+                </Text>
+              </View>
+              {relatedNotice.supervisorName && (
+                <View className={styles.row}>
+                  <Text className={styles.label}>处理人</Text>
+                  <Text className={styles.value}>{relatedNotice.supervisorName}</Text>
+                </View>
+              )}
+              {relatedNotice.supervisorTime && (
+                <View className={styles.row}>
+                  <Text className={styles.label}>处理时间</Text>
+                  <Text className={styles.value}>{formatDateTime(relatedNotice.supervisorTime)}</Text>
+                </View>
+              )}
+              {relatedNotice.supervisorRemark && (
+                <View className={styles.remark}>{relatedNotice.supervisorRemark}</View>
               )}
             </View>
           </View>

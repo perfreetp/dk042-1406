@@ -1,5 +1,9 @@
 @use '@/styles/variables.scss' as *;
 
+.success { color: $color-success; }
+.warn { color: $color-warning; }
+.danger { color: $color-error; }
+
 .page {
   min-height: 100vh;
   background: $color-bg-page;

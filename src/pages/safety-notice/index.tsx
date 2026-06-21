@@ -64,9 +64,10 @@ const SafetyNoticePage: React.FC = () => {
     if (handleResult === 'retest_pass') {
       const v = parseFloat(retestValue);
       if (isNaN(v) || v < 0) return false;
+      if (!retestPhoto) return false;
     }
     return true;
-  }, [handleRemark, handleResult, retestValue]);
+  }, [handleRemark, handleResult, retestValue, retestPhoto]);
 
   const openHandleModal = (notice: SafetyNotice) => {
     if (notice.handled) return;
@@ -120,15 +121,16 @@ const SafetyNoticePage: React.FC = () => {
     };
     if (handleResult === 'retest_pass') {
       payload.retestValue = parseFloat(retestValue);
-      payload.retestPhoto = retestPhoto || `https://picsum.photos/id/${Math.floor(Math.random() * 50) + 100}/400/300`;
+      if (retestPhoto) payload.retestPhoto = retestPhoto;
     }
     handleSafetyNotice(payload);
     console.log('[SafetyNotice] 提交处理', {
       noticeId: activeNotice.id,
       handleResult,
-      retestValue: payload.retestValue
+      retestValue: payload.retestValue,
+      hasRetestPhoto: !!payload.retestPhoto
     });
-    Taro.showToast({ title: '处理完成', icon: 'success' });
+    Taro.showToast({ title: '待主管确认', icon: 'success' });
     closeHandleModal();
   };
 
@@ -383,6 +385,10 @@ const SafetyNoticePage: React.FC = () => {
                 <View className={styles.modalSection}>
                   <Text className={styles.modalLabel}>
                     复测读数照片
+                    <Text style={{ color: '#EF4444' }}>*</Text>
+                    <Text style={{ fontSize: 22, color: '#94A3B8', marginLeft: 12 }}>
+                      必须上传真实照片，无自动占位
+                    </Text>
                   </Text>
                   {retestPhoto ? (
                     <View style={{ position: 'relative' }}>

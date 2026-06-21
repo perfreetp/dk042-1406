@@ -35,6 +35,9 @@ const RecordItem: React.FC<RecordItemProps> = ({ record, onClick }) => {
     if (notice.handleResult === 'retest_pass') {
       return { key: 'retest_pass' as const, label: '已放行' };
     }
+    if (notice.handleResult === 'retest_completed') {
+      return { key: 'retest_completed' as const, label: '补检完成' };
+    }
     if (notice.handleResult === 'replace_driver') {
       return { key: 'replace_driver' as const, label: '已替班' };
     }

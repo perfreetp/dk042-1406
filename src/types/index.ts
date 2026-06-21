@@ -1,10 +1,13 @@
 export type TestStatus = 'pending' | 'testing' | 'pass' | 'retest' | 'fail' | 'exception';
 export type TestResult = 'pass' | 'retest' | 'fail';
 export type ExceptionType = 'over_limit' | 'device_error' | 'timeout' | 'other';
-export type HandleResult = 'retest_pass' | 'replace_driver' | 'device_replaced' | 'other';
-export type TodayTaskStatus = 'pending' | 'completed' | 'waiting' | 'handled';
+export type HandleResult = 'retest_pass' | 'replace_driver' | 'device_replaced' | 'retest_completed' | 'other';
+export type TodayTaskStatus = 'pending' | 'completed' | 'waiting' | 'handled' | 'waiting_supervisor' | 'archived' | 'returned';
 export type TestStep = 1 | 2 | 3;
-export type RecordFilter = 'all' | 'pending' | 'waiting' | 'handled' | 'retest_pass' | 'replace_driver';
+export type RecordFilter = 'all' | 'pending' | 'waiting' | 'handled' | 'retest_pass' | 'replace_driver' | 'retest_completed';
+export type SupervisorStatus = 'pending_review' | 'archived' | 'returned';
+export type SupervisorAction = 'archive' | 'return';
+export type TodayCloseLoopStep = 'safety' | 'supervisor' | 'archived';
 
 export interface UserInfo {
   id: string;
@@ -96,6 +99,10 @@ export interface SafetyNotice {
   retestValue?: number;
   retestPhoto?: string;
   retestTime?: string;
+  supervisorStatus?: SupervisorStatus;
+  supervisorTime?: string;
+  supervisorName?: string;
+  supervisorRemark?: string;
 }
 
 export interface StepConfig {

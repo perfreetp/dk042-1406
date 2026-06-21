@@ -8,7 +8,7 @@ import useAppStore from '@/store';
 import type { TestStatus, TestRecord } from '@/types';
 
 type ResultFilter = TestStatus | 'all';
-type ProgressFilter = 'all' | 'waiting' | 'handled' | 'retest_pass' | 'replace_driver';
+type ProgressFilter = 'all' | 'waiting' | 'handled' | 'retest_pass' | 'replace_driver' | 'retest_completed';
 
 const RESULT_FILTERS: { key: ResultFilter; label: string }[] = [
   { key: 'all', label: '全部' },
@@ -23,6 +23,7 @@ const PROGRESS_FILTERS: { key: ProgressFilter; label: string }[] = [
   { key: 'waiting', label: '待处理' },
   { key: 'handled', label: '已处理' },
   { key: 'retest_pass', label: '已放行' },
+  { key: 'retest_completed', label: '补检完成' },
   { key: 'replace_driver', label: '已替班' }
 ];
 
@@ -48,6 +49,7 @@ const RecordsPage: React.FC = () => {
     if (key === 'waiting') return !notice.handled;
     if (key === 'handled') return notice.handled;
     if (key === 'retest_pass') return notice.handled && notice.handleResult === 'retest_pass';
+    if (key === 'retest_completed') return notice.handled && notice.handleResult === 'retest_completed';
     if (key === 'replace_driver') return notice.handled && notice.handleResult === 'replace_driver';
     return true;
   };

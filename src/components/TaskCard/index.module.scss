@@ -232,6 +232,21 @@
     background: rgba($color-success, 0.95);
     color: $color-text-white;
   }
+
+  &.waiting_supervisor {
+    background: rgba($color-warning, 0.95);
+    color: $color-text-white;
+  }
+
+  &.archived {
+    background: rgba($color-success, 0.95);
+    color: $color-text-white;
+  }
+
+  &.returned {
+    background: rgba($color-error, 0.95);
+    color: $color-text-white;
+  }
 }
 
 .doneBanner {
@@ -297,6 +312,40 @@
   flex: 1;
   font-size: $font-size-sm;
   color: $color-warning;
+  font-weight: $font-weight-medium;
+  line-height: 1.5;
+}
+
+.returnedBanner {
+  margin-top: $spacing-lg;
+  background: rgba($color-error, 0.15);
+  border: 1rpx solid rgba($color-error, 0.35);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.returnedIcon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  background: $color-error;
+  color: $color-text-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  margin-right: $spacing-sm;
+}
+
+.returnedText {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-error;
   font-weight: $font-weight-medium;
   line-height: 1.5;
 }

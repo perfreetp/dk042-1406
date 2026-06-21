@@ -1,5 +1,13 @@
 import { create } from 'zustand';
-import type { TestRecord, SafetyNotice, ExceptionType, HandleResult, TodayTaskStatus } from '@/types';
+import type {
+  TestRecord,
+  SafetyNotice,
+  ExceptionType,
+  HandleResult,
+  TodayTaskStatus,
+  SupervisorStatus,
+  SupervisorAction
+} from '@/types';
 import { mockRecords } from '@/data/mockRecords';
 import { mockSafetyNotices } from '@/data/mockRecords';
 
@@ -27,7 +35,20 @@ interface AppStore {
     retestValue?: number;
     retestPhoto?: string;
   }) => void;
+  handleSupervisorReview: (params: {
+    noticeId: string;
+    supervisorName: string;
+    action: SupervisorAction;
+    remark: string;
+  }) => void;
   getTodayTaskStatus: (driverName: string) => TodayTaskStatus;
+  getTodayCloseLoopInfo: (driverName: string) => {
+    hasException: boolean;
+    currentStep: 'safety' | 'supervisor' | 'archived' | null;
+    relatedNoticeId: string | null;
+    relatedRecordId: string | null;
+  };
+  getTodaySupervisorNotices: () => SafetyNotice[];
 }
 
 const useAppStore = create<AppStore>((set, get) => ({
@@ -115,12 +136,33 @@ const useAppStore = create<AppStore>((set, get) => ({
               handleResult,
               retestValue,
               retestPhoto,
-              retestTime: retestValue !== undefined ? now : undefined
+              retestTime: retestValue !== undefined ? now : undefined,
+              supervisorStatus: 'pending_review' as SupervisorStatus
             }
           : n
       )
     }));
-    console.log('[Store] 处理安全员通知', { noticeId, handleResult, retestValue, handlerName });
+    console.log('[Store] 处理安全员通知', { noticeId, handleResult, retestValue, retestPhoto, handlerName });
+  },
+
+  handleSupervisorReview: (params) => {
+    const { noticeId, supervisorName, action, remark } = params;
+    const now = new Date().toISOString();
+    const newStatus: SupervisorStatus = action === 'archive' ? 'archived' : 'returned';
+    set((state) => ({
+      safetyNotices: state.safetyNotices.map((n) =>
+        n.id === noticeId
+          ? {
+              ...n,
+              supervisorStatus: newStatus,
+              supervisorTime: now,
+              supervisorName,
+              supervisorRemark: remark
+            }
+          : n
+      )
+    }));
+    console.log('[Store] 主管处理', { noticeId, action, supervisorName });
   },
 
   getTodayTaskStatus: (driverName: string): TodayTaskStatus => {
@@ -132,8 +174,62 @@ const useAppStore = create<AppStore>((set, get) => ({
     if (!todayRecord) return 'pending';
     if (todayRecord.status === 'pass') return 'completed';
     const relatedNotice = state.safetyNotices.find((n) => n.taskId === todayRecord.id);
-    if (relatedNotice?.handled) return 'handled';
-    return 'waiting';
+    if (!relatedNotice) return 'waiting';
+    if (!relatedNotice.handled) return 'waiting';
+    if (relatedNotice.supervisorStatus === 'archived') return 'archived';
+    if (relatedNotice.supervisorStatus === 'returned') return 'returned';
+    return 'waiting_supervisor';
+  },
+
+  getTodayCloseLoopInfo: (driverName: string) => {
+    const state = get();
+    const today = new Date().toISOString().split('T')[0];
+    const todayRecord = state.records.find(
+      (r) => r.date === today && r.driverName === driverName
+    );
+    if (!todayRecord || todayRecord.status === 'pass') {
+      return { hasException: false, currentStep: null, relatedNoticeId: null, relatedRecordId: null };
+    }
+    const relatedNotice = state.safetyNotices.find((n) => n.taskId === todayRecord.id);
+    if (!relatedNotice) {
+      return {
+        hasException: true,
+        currentStep: 'safety' as const,
+        relatedNoticeId: null,
+        relatedRecordId: todayRecord.id
+      };
+    }
+    if (!relatedNotice.handled) {
+      return {
+        hasException: true,
+        currentStep: 'safety' as const,
+        relatedNoticeId: relatedNotice.id,
+        relatedRecordId: todayRecord.id
+      };
+    }
+    if (relatedNotice.supervisorStatus === 'archived') {
+      return {
+        hasException: true,
+        currentStep: 'archived' as const,
+        relatedNoticeId: relatedNotice.id,
+        relatedRecordId: todayRecord.id
+      };
+    }
+    return {
+      hasException: true,
+      currentStep: 'supervisor' as const,
+      relatedNoticeId: relatedNotice.id,
+      relatedRecordId: todayRecord.id
+    };
+  },
+
+  getTodaySupervisorNotices: () => {
+    const state = get();
+    const today = new Date().toISOString().split('T')[0];
+    return state.safetyNotices.filter((n) => {
+      const noticeDate = n.createTime.split('T')[0];
+      return noticeDate === today && n.handled;
+    });
   }
 }));
 

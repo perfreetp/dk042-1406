@@ -33,7 +33,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
   const selectedRoute = routeList.find((r) => r.id === selectedRouteId);
   const canStart = !!selectedBusId && !!selectedRouteId;
   const isFinished = todayStatus !== 'pending';
-  const canAlwaysGo = todayStatus === 'waiting' || todayStatus === 'handled';
+  const canAlwaysGo = ['waiting', 'handled', 'waiting_supervisor', 'archived', 'returned'].includes(todayStatus);
 
   const handleBusPickerChange = (e: any) => {
     const idx = parseInt(e.detail.value);
@@ -133,6 +133,29 @@ const TaskCard: React.FC<TaskCardProps> = ({
         </View>
       )}
 
+      {todayStatus === 'waiting_supervisor' && (
+        <View className={styles.waitingBanner}>
+          <View className={styles.waitingIcon}>!</View>
+          <Text className={styles.waitingText}>
+            安全员已处理，等待主管确认归档
+          </Text>
+        </View>
+      )}
+
+      {todayStatus === 'archived' && (
+        <View className={styles.doneBanner}>
+          <View className={styles.doneIcon}>✓</View>
+          <Text className={styles.doneText}>异常闭环已完成，主管已归档</Text>
+        </View>
+      )}
+
+      {todayStatus === 'returned' && (
+        <View className={styles.returnedBanner}>
+          <View className={styles.returnedIcon}>!</View>
+          <Text className={styles.returnedText}>被主管退回，请补充说明后重新提交</Text>
+        </View>
+      )}
+
       <Button
         className={classnames(styles.actionBtn, !canStart && !canAlwaysGo && styles.disabled)}
         onClick={() => {
@@ -143,7 +166,19 @@ const TaskCard: React.FC<TaskCardProps> = ({
           onStartTest();
         }}
       >
-        {todayStatus === 'completed' ? '重新检测' : todayStatus === 'waiting' ? '查看处理进度' : todayStatus === 'handled' ? '查看记录' : '开始晨检酒测'}
+        {todayStatus === 'completed'
+          ? '重新检测'
+          : todayStatus === 'waiting'
+          ? '查看处理进度'
+          : todayStatus === 'handled'
+          ? '查看处理记录'
+          : todayStatus === 'waiting_supervisor'
+          ? '查看待主管确认'
+          : todayStatus === 'archived'
+          ? '查看已归档记录'
+          : todayStatus === 'returned'
+          ? '查看退回详情'
+          : '开始晨检酒测'}
       </Button>
     </View>
   );
