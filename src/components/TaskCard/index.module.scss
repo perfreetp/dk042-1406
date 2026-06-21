@@ -1,0 +1,206 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  box-shadow: 0 8rpx 24rpx rgba($color-primary, 0.2);
+  margin-bottom: $spacing-md;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60rpx;
+    right: -60rpx;
+    width: 200rpx;
+    height: 200rpx;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: $radius-round;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -40rpx;
+    left: -40rpx;
+    width: 140rpx;
+    height: 140rpx;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: $radius-round;
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-lg;
+  position: relative;
+  z-index: 1;
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+.taskLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: $spacing-xs;
+}
+
+.taskTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: $spacing-xs;
+}
+
+.taskDate {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+  position: relative;
+  z-index: 1;
+}
+
+.infoItem {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.infoLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 6rpx;
+}
+
+.infoValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+
+  @include text-ellipsis;
+}
+
+.selectSection {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  position: relative;
+  z-index: 1;
+}
+
+.selectRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.selectLabel {
+  width: 140rpx;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  flex-shrink: 0;
+}
+
+.selectPicker {
+  flex: 1;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+  padding: $spacing-sm $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pickerValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.pickerPlaceholder {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.pickerArrow {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.timeHighlight {
+  display: flex;
+  align-items: center;
+  background: rgba($color-warning, 0.12);
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-sm;
+  margin-top: $spacing-md;
+  position: relative;
+  z-index: 1;
+}
+
+.timeIcon {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: $radius-round;
+  background: $color-warning;
+  color: $color-text-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xs;
+  margin-right: $spacing-sm;
+  font-weight: $font-weight-bold;
+}
+
+.timeText {
+  font-size: $font-size-sm;
+  color: $color-warning;
+  font-weight: $font-weight-medium;
+
+  .timeValue {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-md;
+  }
+}
+
+.actionBtn {
+  @include button-reset;
+  margin-top: $spacing-xl;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: $color-bg-card;
+  color: $color-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  position: relative;
+  z-index: 1;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+    background: $color-bg-hover;
+  }
+
+  &.disabled {
+    background: rgba(255, 255, 255, 0.6);
+    color: rgba($color-primary, 0.5);
+  }
+}

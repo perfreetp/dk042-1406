@@ -1,0 +1,55 @@
+export const formatTime = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
+};
+
+export const formatDate = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+export const formatDateTime = (dateStr: string): string => {
+  return `${formatDate(dateStr)} ${formatTime(dateStr)}`;
+};
+
+export const getStatusText = (status: string): string => {
+  const map: Record<string, string> = {
+    pending: '待检测',
+    testing: '检测中',
+    pass: '可发车',
+    retest: '需复测',
+    fail: '禁止发车',
+    exception: '异常上报'
+  };
+  return map[status] || status;
+};
+
+export const getExceptionTypeText = (type: string): string => {
+  const map: Record<string, string> = {
+    over_limit: '酒精超标',
+    device_error: '设备故障',
+    timeout: '未按时检测',
+    other: '其他异常'
+  };
+  return map[type] || type;
+};
+
+export const getAlcoholResult = (value: number): 'pass' | 'retest' | 'fail' => {
+  if (value < 20) return 'pass';
+  if (value < 80) return 'retest';
+  return 'fail';
+};
+
+export const generateId = (): string => {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+};
+
+export const validatePlateNo = (plateNo: string): boolean => {
+  const reg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领][A-Z][A-Z0-9]{5,6}$/;
+  return reg.test(plateNo);
+};

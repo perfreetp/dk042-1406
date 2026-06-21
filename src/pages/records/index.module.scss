@@ -1,0 +1,91 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  background: $color-bg-card;
+  padding: $spacing-lg $page-padding;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.summaryBar {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.summaryItem {
+  flex: 1;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+
+  .num {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    margin-bottom: 4rpx;
+
+    &.green { color: $color-success; }
+    &.orange { color: $color-warning; }
+    &.red { color: $color-error; }
+  }
+
+  .label {
+    font-size: $font-size-xs;
+    color: $color-text-tertiary;
+  }
+}
+
+.filterTabs {
+  display: flex;
+  gap: $spacing-sm;
+  overflow-x: auto;
+
+  @include scroll-x-container;
+}
+
+.filterTab {
+  @include scroll-x-item(auto);
+  padding: 12rpx 28rpx;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  white-space: nowrap;
+  transition: all $transition-fast;
+
+  &.active {
+    background: $color-primary;
+    color: $color-text-white;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.content {
+  padding: $spacing-md $page-padding;
+}
+
+.emptyState {
+  padding: 120rpx $spacing-lg;
+  text-align: center;
+
+  .emptyIcon {
+    font-size: 120rpx;
+    opacity: 0.3;
+    margin-bottom: $spacing-md;
+  }
+
+  .emptyText {
+    font-size: $font-size-sm;
+    color: $color-text-tertiary;
+  }
+}

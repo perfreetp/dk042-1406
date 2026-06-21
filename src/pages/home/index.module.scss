@@ -1,0 +1,208 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  background: linear-gradient(180deg, $color-primary 0%, rgba($color-primary, 0.85) 100%);
+  padding: $spacing-lg $page-padding 120rpx;
+  position: relative;
+}
+
+.userBar {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-round;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  margin-right: $spacing-md;
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.userGreeting {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 4rpx;
+}
+
+.userName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+}
+
+.schoolTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 16rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  color: $color-text-white;
+  margin-top: 6rpx;
+}
+
+.statRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.statNum {
+  font-size: 44rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  line-height: 1.2;
+  margin-bottom: 4rpx;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.content {
+  margin-top: -80rpx;
+  padding: 0 $page-padding;
+  position: relative;
+  z-index: 2;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: $spacing-xl 0 $spacing-md;
+
+  .title {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+  }
+
+  .more {
+    font-size: $font-size-xs;
+    color: $color-text-tertiary;
+  }
+}
+
+.tipsCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-top: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.tipsHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.tipsIcon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-md;
+  background: $color-primary-bg;
+  color: $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  margin-right: $spacing-sm;
+}
+
+.tipsTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.tipsList {
+  .tipItem {
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+    line-height: 2;
+    padding-left: $spacing-md;
+    position: relative;
+
+    &::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: $color-success;
+      font-weight: $font-weight-bold;
+    }
+  }
+}
+
+.quickActions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.actionCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.actionIcon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  margin-bottom: $spacing-sm;
+
+  &.blue {
+    background: $color-primary-bg;
+    color: $color-primary;
+  }
+
+  &.orange {
+    background: $color-warning-bg;
+    color: $color-warning;
+  }
+}
+
+.actionText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}

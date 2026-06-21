@@ -1,0 +1,99 @@
+@use '@/styles/variables.scss' as *;
+
+.item {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+    box-shadow: 0 1rpx 6rpx rgba(0, 0, 0, 0.06);
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-md;
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+.dateText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 6rpx;
+}
+
+.routeText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.infoRow {
+  display: flex;
+  gap: $spacing-lg;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.infoCell {
+  flex: 1;
+
+  .label {
+    font-size: $font-size-xs;
+    color: $color-text-tertiary;
+    margin-bottom: 6rpx;
+  }
+
+  .value {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.alcoholCell {
+  .value {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+
+    &.warn { color: $color-warning; }
+    &.danger { color: $color-error; }
+  }
+}
+
+.hasException {
+  margin-top: $spacing-md;
+  background: $color-error-bg;
+  border-radius: $radius-sm;
+  padding: $spacing-sm $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+
+  .tag {
+    font-size: 20rpx;
+    padding: 2rpx 10rpx;
+    border-radius: $radius-xs;
+    background: $color-error;
+    color: $color-text-white;
+    font-weight: $font-weight-medium;
+    flex-shrink: 0;
+  }
+
+  .text {
+    font-size: $font-size-xs;
+    color: $color-error;
+    @include text-ellipsis;
+    flex: 1;
+  }
+}

@@ -1,0 +1,42 @@
+@use '@/styles/variables.scss' as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 20rpx;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+
+  &.pass {
+    background-color: $color-success-bg;
+    color: $color-success;
+  }
+
+  &.retest {
+    background-color: $color-warning-bg;
+    color: $color-warning;
+  }
+
+  &.fail {
+    background-color: $color-error-bg;
+    color: $color-error;
+  }
+
+  &.pending {
+    background-color: $color-primary-bg;
+    color: $color-primary;
+  }
+
+  &.testing {
+    background-color: rgba($color-secondary, 0.1);
+    color: $color-secondary;
+  }
+
+  &.exception {
+    background-color: $color-error-bg;
+    color: $color-error;
+  }
+}

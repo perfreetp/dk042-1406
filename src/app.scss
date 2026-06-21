@@ -1,0 +1,51 @@
+@use '@/styles/compat.scss';
+@use '@/styles/variables.scss' as *;
+
+// 全局样式
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB',
+    sans-serif;
+  font-size: $font-size-md;
+  line-height: $line-height-normal;
+  color: $color-text-primary;
+  background-color: $color-bg-page;
+}
+
+// 全局工具类
+.pageContainer {
+  padding: 0 $page-padding;
+  box-sizing: border-box;
+}
+
+.flexRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.flexCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.flexBetween {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flexCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex1 {
+  flex: 1;
+}
+
+.textEllipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

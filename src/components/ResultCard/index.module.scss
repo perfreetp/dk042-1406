@@ -1,0 +1,183 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  box-shadow: $shadow-card;
+  text-align: center;
+  transition: all $transition-base;
+
+  &.pass {
+    background: linear-gradient(135deg, rgba($color-success, 0.1) 0%, rgba($color-success, 0.02) 100%);
+    border: 2rpx solid rgba($color-success, 0.3);
+  }
+
+  &.retest {
+    background: linear-gradient(135deg, rgba($color-warning, 0.1) 0%, rgba($color-warning, 0.02) 100%);
+    border: 2rpx solid rgba($color-warning, 0.3);
+  }
+
+  &.fail {
+    background: linear-gradient(135deg, rgba($color-error, 0.1) 0%, rgba($color-error, 0.02) 100%);
+    border: 2rpx solid rgba($color-error, 0.3);
+  }
+}
+
+.iconWrapper {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto $spacing-lg;
+  font-size: 80rpx;
+
+  &.pass {
+    background: $color-success;
+    box-shadow: 0 8rpx 24rpx rgba($color-success, 0.3);
+  }
+
+  &.retest {
+    background: $color-warning;
+    box-shadow: 0 8rpx 24rpx rgba($color-warning, 0.3);
+  }
+
+  &.fail {
+    background: $color-error;
+    box-shadow: 0 8rpx 24rpx rgba($color-error, 0.3);
+  }
+}
+
+.resultTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-xs;
+
+  &.pass { color: $color-success; }
+  &.retest { color: $color-warning; }
+  &.fail { color: $color-error; }
+}
+
+.resultSubtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-lg;
+}
+
+.alcoholBox {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.alcoholLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.alcoholValue {
+  font-size: 56rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+
+  .unit {
+    font-size: $font-size-md;
+    font-weight: $font-weight-normal;
+    color: $color-text-secondary;
+    margin-left: $spacing-xs;
+  }
+}
+
+.alcoholTip {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.tipList {
+  text-align: left;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-lg;
+}
+
+.tipItem {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: 1.8;
+  padding-left: $spacing-md;
+  position: relative;
+
+  &::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  &.warn {
+    color: $color-warning;
+  }
+
+  &.danger {
+    color: $color-error;
+  }
+}
+
+.actionBtns {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-xl;
+}
+
+.btnPrimary {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+
+  &.pass {
+    background: $color-success;
+    color: $color-text-white;
+  }
+}
+
+.btnSecondary {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  background: $color-bg-card;
+  border: 2rpx solid $color-border;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+    background: $color-bg-hover;
+  }
+
+  &.retest {
+    border-color: $color-warning;
+    color: $color-warning;
+  }
+
+  &.fail {
+    border-color: $color-error;
+    color: $color-error;
+  }
+}

@@ -1,0 +1,93 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg 0;
+  position: relative;
+}
+
+.stepWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.stepCircle {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-sm;
+  transition: all $transition-base;
+
+  &.done {
+    background-color: $color-success;
+    color: $color-text-white;
+  }
+
+  &.active {
+    background-color: $color-primary;
+    color: $color-text-white;
+    box-shadow: 0 0 0 8rpx rgba($color-primary, 0.15);
+  }
+
+  &.pending {
+    background-color: $color-bg-page;
+    color: $color-text-tertiary;
+    border: 2rpx solid $color-border;
+  }
+}
+
+.stepTitle {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  white-space: nowrap;
+
+  &.active {
+    color: $color-primary;
+  }
+
+  &.done {
+    color: $color-success;
+  }
+
+  &.pending {
+    color: $color-text-tertiary;
+  }
+}
+
+.stepDesc {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  white-space: nowrap;
+}
+
+.connector {
+  position: absolute;
+  top: 32rpx;
+  left: 20%;
+  right: 20%;
+  height: 4rpx;
+  background-color: $color-border;
+  z-index: 1;
+}
+
+.connectorFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: $color-success;
+  transition: width $transition-base;
+}
